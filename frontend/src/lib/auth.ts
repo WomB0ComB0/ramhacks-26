@@ -1,17 +1,18 @@
 import { createClient } from "@neondatabase/neon-js";
 import { BetterAuthReactAdapter } from "@neondatabase/neon-js/auth/react/adapters";
 
-// Neon Auth (built on Better Auth) — unified SDK.
-// VITE_NEON_AUTH_URL comes from your Neon Console → Auth → Quickstart panel
-// and is the same issuer URL the Express backend (backend/src/middleware/auth.ts)
-// uses for JWKS verification.
+// Plan C: we self-host Better Auth on the Express backend (mounted at
+// /api/auth/*). The frontend talks to that endpoint instead of Neon's hosted
+// auth proxy — eliminates the cross-origin INVALID_ORIGIN dependency on
+// Neon's Console UI.
 
-const url = import.meta.env.VITE_NEON_AUTH_URL;
-if (!url) {
+const apiBase = import.meta.env.VITE_API_BASE_URL;
+if (!apiBase) {
   throw new Error(
-    "VITE_NEON_AUTH_URL is not set. Copy it from the Neon Console → Auth → Quickstart panel into .env.",
+    "VITE_API_BASE_URL is not set. Set it to your backend URL (e.g. https://ramhacks-26-production.up.railway.app).",
   );
 }
+const url = `${apiBase.replace(/\/$/, "")}/api/auth`;
 
 export const client = createClient({
   auth: {

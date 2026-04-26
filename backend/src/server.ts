@@ -4,9 +4,11 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import pino from "pino";
 import pinoHttp from "pino-http";
+import { toNodeHandler } from "better-auth/node";
 import profileRouter from "./routes/profile";
 import careersRouter from "./routes/careers";
 import actionPlansRouter from "./routes/actionPlans";
+import { auth } from "./lib/auth-server";
 
 const logger = pino({
   level: process.env.LOG_LEVEL ?? "info",
@@ -28,6 +30,9 @@ export function buildApp() {
       allowedHeaders: ["Content-Type", "Authorization"],
     }),
   );
+
+  // Better Auth handler — MUST mount before express.json because it parses its own body.
+  app.all("/api/auth/*", toNodeHandler(auth));
 
   app.use(express.json({ limit: "1mb" }));
   app.use(pinoHttp({ logger }));
