@@ -28,18 +28,16 @@ export default function SignedIn({
   return (
     <div style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}>
       <header
+        className="row-between"
         style={{
           padding: "16px 24px",
           borderBottom: "1px solid var(--border)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
           gap: 16,
         }}
       >
         <Brand />
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ color: "var(--text-muted)", fontSize: 14 }}>{user.email}</span>
+        <div className="row" style={{ gap: 12 }}>
+          <span className="muted body-sm">{user.email}</span>
           <button className="btn btn-ghost" onClick={() => signOut()}>
             Sign out
           </button>
@@ -48,7 +46,7 @@ export default function SignedIn({
 
       <main style={{ width: "100%", maxWidth: 880, margin: "0 auto", padding: "32px 24px 64px" }}>
         <h1 style={{ marginBottom: 8 }}>Welcome{user.name ? `, ${user.name}` : ""}.</h1>
-        <p style={{ color: "var(--text-muted)" }}>
+        <p className="muted">
           <span className="kbd">userId</span>{" "}
           <span style={{ marginLeft: 6, fontFamily: "ui-monospace, Menlo", fontSize: 12 }}>
             {user.id}
@@ -56,13 +54,13 @@ export default function SignedIn({
         </p>
 
         {state.kind === "loading" && (
-          <p style={{ color: "var(--text-muted)", marginTop: 24 }}>Loading profile…</p>
+          <p className="muted" style={{ marginTop: 24 }}>Loading profile…</p>
         )}
 
         {state.kind === "error" && <ErrorBanner message={state.message} />}
 
         {state.kind === "absent" && (
-          <Suspense fallback={<p style={{ color: "var(--text-muted)" }}>Loading form…</p>}>
+          <Suspense fallback={<p className="muted">Loading form…</p>}>
             <OnboardingForm onSaved={refetch} />
           </Suspense>
         )}
@@ -87,7 +85,7 @@ export default function SignedIn({
 
         {new URLSearchParams(window.location.search).get("debug") === "1" && <SmokeTest />}
 
-        <section style={{ marginTop: 32 }}>
+        <section className="section" style={{ marginTop: 32 }}>
           <h2>Account</h2>
           <div className="card-muted" style={{ marginTop: 8 }}>
             <AccountView />

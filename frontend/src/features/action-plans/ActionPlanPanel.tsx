@@ -207,15 +207,8 @@ export default function ActionPlanPanel() {
   const steps = plan ? plan[horizon] : [];
 
   return (
-    <section style={{ marginTop: 32 }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-          marginBottom: 16,
-        }}
-      >
+    <section className="section" style={{ marginTop: 32 }}>
+      <header className="row-baseline" style={{ marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Action plan</h2>
         <button
           className="btn btn-primary"
@@ -230,18 +223,16 @@ export default function ActionPlanPanel() {
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {loading ? (
-        <p style={{ color: "var(--text-muted)" }}>Loading…</p>
+        <p className="muted">Loading…</p>
       ) : !plan ? (
-        <div className="card-muted" style={{ textAlign: "center", padding: 32 }}>
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>
-            No plan yet. Click <strong>Plan my next steps</strong> to generate one.
-          </p>
+        <div className="empty-state">
+          No plan yet. Click <strong>Plan my next steps</strong> to generate one.
         </div>
       ) : (
         <>
           {plan.summary && (
             <div className="card-muted" style={{ marginBottom: 12 }}>
-              <p style={{ margin: 0, color: "var(--text)" }}>{plan.summary}</p>
+              <p className="body-sm" style={{ margin: 0 }}>{plan.summary}</p>
             </div>
           )}
 
@@ -259,7 +250,7 @@ export default function ActionPlanPanel() {
           </div>
 
           {steps.length === 0 ? (
-            <p style={{ color: "var(--text-muted)" }}>No steps in this horizon.</p>
+            <p className="muted">No steps in this horizon.</p>
           ) : (
             <div>
               {steps.map((s, i) => (

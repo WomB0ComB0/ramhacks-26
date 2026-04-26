@@ -59,41 +59,13 @@ function CopyBlock({ text, label }: { text: string; label?: string }) {
     }
   };
   return (
-    <div
-      style={{
-        position: "relative",
-        background: "var(--bg-elev)",
-        border: "1px solid var(--border)",
-        borderRadius: 10,
-        padding: "12px 14px",
-      }}
-    >
-      {label && (
-        <div
-          style={{
-            fontSize: 11,
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            color: "var(--text-muted)",
-            marginBottom: 6,
-          }}
-        >
-          {label}
-        </div>
-      )}
-      <p style={{ margin: 0, color: "var(--text)", whiteSpace: "pre-wrap", fontSize: 14 }}>
-        {text}
-      </p>
+    <div className="card-muted" style={{ position: "relative" }}>
+      {label && <div className="eyebrow" style={{ marginBottom: 6 }}>{label}</div>}
+      <p className="body-sm" style={{ margin: 0, whiteSpace: "pre-wrap" }}>{text}</p>
       <button
         onClick={onCopy}
         className="btn"
-        style={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          padding: "4px 8px",
-          fontSize: 11,
-        }}
+        style={{ position: "absolute", top: 8, right: 8, padding: "4px 8px", fontSize: 11 }}
       >
         {copied ? "Copied" : "Copy"}
       </button>
@@ -155,23 +127,23 @@ export default function NetworkingPanel() {
   };
 
   return (
-    <section style={{ marginTop: 24 }}>
+    <section className="section">
       <header style={{ marginBottom: 12 }}>
         <h2 style={{ margin: 0 }}>Networking message</h2>
-        <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: 14 }}>
+        <p className="muted body-sm" style={{ marginTop: 4 }}>
           Draft an outreach DM, email, or intro - tailored to who you're contacting and what you
           want.
         </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="card" style={{ display: "grid", gap: 12 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <label style={{ display: "grid", gap: 4 }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Recipient type</span>
+      <form onSubmit={handleSubmit} className="card stack-3">
+        <div className="field-row">
+          <label className="field">
+            <span className="field-label">Recipient type</span>
             <select
               value={recipientType}
               onChange={(e) => setRecipientType(e.target.value as RecipientType)}
-              style={selectStyle}
+              style={{ cursor: "pointer" }}
             >
               {RECIPIENT_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -180,12 +152,12 @@ export default function NetworkingPanel() {
               ))}
             </select>
           </label>
-          <label style={{ display: "grid", gap: 4 }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Channel</span>
+          <label className="field">
+            <span className="field-label">Channel</span>
             <select
               value={channel}
               onChange={(e) => setChannel(e.target.value as Channel)}
-              style={selectStyle}
+              style={{ cursor: "pointer" }}
             >
               {CHANNEL_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
@@ -196,54 +168,50 @@ export default function NetworkingPanel() {
           </label>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <label style={{ display: "grid", gap: 4 }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Recipient name (optional)</span>
+        <div className="field-row">
+          <label className="field">
+            <span className="field-label">Recipient name (optional)</span>
             <input
               type="text"
               value={recipientName}
               onChange={(e) => setRecipientName(e.target.value)}
               placeholder="Jane Doe"
-              style={inputStyle}
             />
           </label>
-          <label style={{ display: "grid", gap: 4 }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Their role (optional)</span>
+          <label className="field">
+            <span className="field-label">Their role (optional)</span>
             <input
               type="text"
               value={recipientRole}
               onChange={(e) => setRecipientRole(e.target.value)}
               placeholder="Staff Engineer at Stripe"
-              style={inputStyle}
             />
           </label>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <label style={{ display: "grid", gap: 4 }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Their org (optional)</span>
+        <div className="field-row">
+          <label className="field">
+            <span className="field-label">Their org (optional)</span>
             <input
               type="text"
               value={recipientOrg}
               onChange={(e) => setRecipientOrg(e.target.value)}
               placeholder="Stripe"
-              style={inputStyle}
             />
           </label>
-          <label style={{ display: "grid", gap: 4 }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Shared connection (optional)</span>
+          <label className="field">
+            <span className="field-label">Shared connection (optional)</span>
             <input
               type="text"
               value={sharedConnection}
               onChange={(e) => setSharedConnection(e.target.value)}
               placeholder="Both went to RamHacks 2024"
-              style={inputStyle}
             />
           </label>
         </div>
 
-        <label style={{ display: "grid", gap: 4 }}>
-          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Tone</span>
+        <label className="field">
+          <span className="field-label">Tone</span>
           <div className="seg" role="tablist" style={{ width: "fit-content" }}>
             {TONE_OPTIONS.map((o) => (
               <button
@@ -259,29 +227,29 @@ export default function NetworkingPanel() {
           </div>
         </label>
 
-        <label style={{ display: "grid", gap: 4 }}>
-          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Your ask *</span>
+        <label className="field">
+          <span className="field-label">Your ask *</span>
           <textarea
             value={ask}
             onChange={(e) => setAsk(e.target.value)}
             rows={3}
             placeholder="20 minutes on their calendar to learn how they got into ML infra"
-            style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
+            style={{ resize: "vertical" }}
           />
         </label>
 
-        <label style={{ display: "grid", gap: 4 }}>
-          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Extra context (optional)</span>
+        <label className="field">
+          <span className="field-label">Extra context (optional)</span>
           <textarea
             value={context}
             onChange={(e) => setContext(e.target.value)}
             rows={2}
             placeholder="I read their post on LLM evaluation and have a question about their setup"
-            style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit" }}
+            style={{ resize: "vertical" }}
           />
         </label>
 
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <div className="row-end">
           <button type="submit" className="btn btn-primary" disabled={generating}>
             {generating ? "Drafting…" : "Draft message"}
           </button>
@@ -291,7 +259,7 @@ export default function NetworkingPanel() {
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {result && (
-        <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
+        <div className="stack-3" style={{ marginTop: 16 }}>
           {result.subjectLine && (
             <CopyBlock text={result.subjectLine} label="Subject line" />
           )}
@@ -301,25 +269,11 @@ export default function NetworkingPanel() {
               <CopyBlock key={`alt-${i}`} text={alt} label={`Alternative ${i + 1}`} />
             ))}
           {result.followUps.length > 0 && (
-            <details
-              style={{
-                background: "var(--bg-elev)",
-                border: "1px solid var(--border)",
-                borderRadius: 10,
-                padding: "10px 14px",
-              }}
-            >
-              <summary
-                style={{
-                  cursor: "pointer",
-                  color: "var(--text-muted)",
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
-              >
+            <details className="card-muted">
+              <summary style={{ cursor: "pointer" }} className="muted-sm">
                 Follow-ups (if no reply in 5 days)
               </summary>
-              <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+              <div className="stack-2" style={{ marginTop: 10 }}>
                 {result.followUps.map((f, i) => (
                   <CopyBlock key={`f-${i}`} text={f} />
                 ))}
@@ -328,18 +282,10 @@ export default function NetworkingPanel() {
           )}
           {result.questions.length > 0 && (
             <div className="card-muted">
-              <div
-                style={{
-                  fontSize: 11,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  color: "var(--text-muted)",
-                  marginBottom: 6,
-                }}
-              >
+              <div className="eyebrow" style={{ marginBottom: 6 }}>
                 If you get a meeting, ask
               </div>
-              <ul style={{ margin: 0, paddingLeft: 18, color: "var(--text)", fontSize: 14 }}>
+              <ul className="body-sm" style={{ margin: 0, paddingLeft: 18 }}>
                 {result.questions.map((q, i) => (
                   <li key={i} style={{ marginBottom: 4 }}>
                     {q}
@@ -349,14 +295,7 @@ export default function NetworkingPanel() {
             </div>
           )}
           {result.toneNotes && (
-            <p
-              style={{
-                margin: 0,
-                fontSize: 12,
-                color: "var(--text-muted)",
-                fontStyle: "italic",
-              }}
-            >
+            <p className="muted-italic" style={{ margin: 0 }}>
               {result.toneNotes}
             </p>
           )}
@@ -365,18 +304,3 @@ export default function NetworkingPanel() {
     </section>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  background: "var(--bg-elev)",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  padding: "8px 10px",
-  color: "var(--text)",
-  fontSize: 14,
-  width: "100%",
-};
-
-const selectStyle: React.CSSProperties = {
-  ...inputStyle,
-  cursor: "pointer",
-};
