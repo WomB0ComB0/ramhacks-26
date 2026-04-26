@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/auth";
 import * as profiles from "../repositories/profiles";
+import * as opportunityRepo from "../repositories/opportunities";
 import {
   OPPORTUNITIES,
   type Opportunity,
@@ -146,6 +147,54 @@ router.get("/match", async (req: Request, res: Response): Promise<void> => {
 
 router.get("/", (_req: Request, res: Response): void => {
   res.json({ opportunities: OPPORTUNITIES });
+});
+
+const SaveBody = z.object({ slug: z.string().min(1).max(120) }).strict();
+
+router.post("/save", async (req: Request, res: Response): Promise<void> => {
+  const userId = req.auth!.userId;
+  const parsed = SaveBody.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    res.status(400).json({
+      error: {
+        code: "validation_failed",
+        message: "Invalid save body.",
+        details: z.flattenError(parsed.error),
+      },
+    });
+    return;
+  }
+  const opp = OPPORTUNITIES.find((o) => o.slug === parsed.data.slug);
+  if (!opp) {
+    res.status(404).json({
+      error: { code: "not_found", message: "Unknown opportunity slug." },
+    });
+    return;
+  }
+  const row = await opportunityRepo.saveCatalogEntry(userId, opp);
+  res.status(201).json({ opportunity: row });
+});
+
+router.get("/saved", async (req: Request, res: Response): Promise<void> => {
+  const userId = req.auth!.userId;
+  const rows = await opportunityRepo.listSaved(userId);
+  res.json({ opportunities: rows });
+});
+
+router.post("/:id/unsave", async (req: Request, res: Response): Promise<void> => {
+  const userId = req.auth!.userId;
+  const row = await opportunityRepo.setSaved(userId, req.params.id, false);
+  if (!row) {
+    res.status(404).json({ error: { code: "not_found", message: "Not found." } });
+    return;
+  }
+  res.json({ opportunity: row });
+});
+
+router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
+  const userId = req.auth!.userId;
+  await opportunityRepo.deleteOne(userId, req.params.id);
+  res.status(204).end();
 });
 
 export default router;

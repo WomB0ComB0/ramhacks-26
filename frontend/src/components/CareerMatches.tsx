@@ -206,6 +206,7 @@ export default function CareerMatches() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedOnly, setSavedOnly] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -269,17 +270,38 @@ export default function CareerMatches() {
           justifyContent: "space-between",
           alignItems: "baseline",
           marginBottom: 16,
+          gap: 12,
+          flexWrap: "wrap",
         }}
       >
         <h2 style={{ margin: 0 }}>Career matches</h2>
-        <button
-          className="btn btn-primary"
-          onClick={handleGenerate}
-          disabled={generating}
-          style={{ minWidth: 140 }}
-        >
-          {generating ? "Matching…" : list.length > 0 ? "Regenerate" : "Match me"}
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              color: "var(--text-muted)",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={savedOnly}
+              onChange={(e) => setSavedOnly(e.target.checked)}
+            />
+            ★ Saved only
+          </label>
+          <button
+            className="btn btn-primary"
+            onClick={handleGenerate}
+            disabled={generating}
+            style={{ minWidth: 140 }}
+          >
+            {generating ? "Matching…" : list.length > 0 ? "Regenerate" : "Match me"}
+          </button>
+        </div>
       </header>
 
       {error && <pre className="pre-err">{error}</pre>}
@@ -323,25 +345,37 @@ export default function CareerMatches() {
 
       {loading ? (
         <p style={{ color: "var(--text-muted)" }}>Loading…</p>
-      ) : list.length === 0 ? (
-        <div className="card-muted" style={{ textAlign: "center", padding: 32 }}>
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>
-            No matches yet. Click <strong>Match me</strong> to generate from your profile.
-          </p>
-        </div>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: 16,
-          }}
-        >
-          {list.map((row) => (
-            <CareerCard key={row.id} row={row} onSaveToggle={handleSaveToggle} />
-          ))}
-        </div>
-      )}
+      ) : (() => {
+          const visible = savedOnly ? list.filter((r) => r.saved) : list;
+          if (visible.length === 0) {
+            return (
+              <div className="card-muted" style={{ textAlign: "center", padding: 32 }}>
+                <p style={{ color: "var(--text-muted)", margin: 0 }}>
+                  {savedOnly
+                    ? "Nothing saved yet. Star a match to keep it here."
+                    : (
+                      <>
+                        No matches yet. Click <strong>Match me</strong> to generate from your profile.
+                      </>
+                    )}
+                </p>
+              </div>
+            );
+          }
+          return (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                gap: 16,
+              }}
+            >
+              {visible.map((row) => (
+                <CareerCard key={row.id} row={row} onSaveToggle={handleSaveToggle} />
+              ))}
+            </div>
+          );
+        })()}
     </section>
   );
 }

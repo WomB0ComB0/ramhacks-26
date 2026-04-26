@@ -98,7 +98,15 @@ function KindBadge({ kind }: { kind: OpportunityKind }) {
   );
 }
 
-function OpportunityCard({ opp }: { opp: Opportunity }) {
+function OpportunityCard({
+  opp,
+  saved,
+  onSaveToggle,
+}: {
+  opp: Opportunity;
+  saved: boolean;
+  onSaveToggle: (slug: string, next: boolean, savedRowId?: string) => void;
+}) {
   return (
     <article className="card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <header
@@ -124,7 +132,21 @@ function OpportunityCard({ opp }: { opp: Opportunity }) {
             {opp.organization}
           </div>
         </div>
-        <KindBadge kind={opp.kind} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+          <KindBadge kind={opp.kind} />
+          <button
+            className="btn"
+            style={{
+              padding: "4px 8px",
+              fontSize: 12,
+              background: saved ? "var(--accent-soft)" : undefined,
+              borderColor: saved ? "var(--accent)" : undefined,
+            }}
+            onClick={() => onSaveToggle(opp.slug, !saved)}
+          >
+            {saved ? "★ Saved" : "☆ Save"}
+          </button>
+        </div>
       </header>
 
       <p style={{ color: "var(--text)", fontSize: 14, margin: 0 }}>{opp.oneLiner}</p>
@@ -238,13 +260,20 @@ function OpportunityCard({ opp }: { opp: Opportunity }) {
   );
 }
 
+interface SavedRow {
+  id: string;
+  sourceId: string | null;
+}
+
 export default function OpportunityList() {
   const [list, setList] = useState<Opportunity[]>([]);
+  const [savedBySlug, setSavedBySlug] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [kind, setKind] = useState<OpportunityKind | "all">("all");
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [freeOnly, setFreeOnly] = useState(false);
+  const [savedOnly, setSavedOnly] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -257,8 +286,17 @@ export default function OpportunityList() {
       if (freeOnly) params.set("freeOnly", "true");
       params.set("limit", "12");
       try {
-        const res = await api.get<MatchResponse>(`/api/opportunities/match?${params}`);
-        if (!cancelled) setList(res.opportunities);
+        const [match, saved] = await Promise.all([
+          api.get<MatchResponse>(`/api/opportunities/match?${params}`),
+          api.get<{ opportunities: SavedRow[] }>("/api/opportunities/saved"),
+        ]);
+        if (cancelled) return;
+        setList(match.opportunities);
+        const map: Record<string, string> = {};
+        for (const r of saved.opportunities) {
+          if (r.sourceId) map[r.sourceId] = r.id;
+        }
+        setSavedBySlug(map);
       } catch (e) {
         if (!cancelled)
           setError(e instanceof ApiError ? `${e.code}: ${e.message}` : String(e));
@@ -270,6 +308,37 @@ export default function OpportunityList() {
       cancelled = true;
     };
   }, [kind, remoteOnly, freeOnly]);
+
+  const handleSaveToggle = async (slug: string, next: boolean) => {
+    const prevId = savedBySlug[slug];
+    setSavedBySlug((m) => {
+      const copy = { ...m };
+      if (next) copy[slug] = prevId ?? "pending";
+      else delete copy[slug];
+      return copy;
+    });
+    try {
+      if (next) {
+        const res = await api.post<{ opportunity: { id: string } }>(
+          "/api/opportunities/save",
+          { slug },
+        );
+        setSavedBySlug((m) => ({ ...m, [slug]: res.opportunity.id }));
+      } else if (prevId && prevId !== "pending") {
+        await api.post(`/api/opportunities/${prevId}/unsave`);
+      }
+    } catch (e) {
+      setSavedBySlug((m) => {
+        const copy = { ...m };
+        if (next) delete copy[slug];
+        else if (prevId) copy[slug] = prevId;
+        return copy;
+      });
+      setError(e instanceof ApiError ? `${e.code}: ${e.message}` : String(e));
+    }
+  };
+
+  const visible = savedOnly ? list.filter((o) => savedBySlug[o.slug]) : list;
 
   return (
     <section style={{ marginTop: 24 }}>
@@ -335,16 +404,35 @@ export default function OpportunityList() {
           />
           Free only
         </label>
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 13,
+            color: "var(--text-muted)",
+            cursor: "pointer",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={savedOnly}
+            onChange={(e) => setSavedOnly(e.target.checked)}
+          />
+          ★ Saved only
+        </label>
       </div>
 
       {error && <pre className="pre-err">{error}</pre>}
 
       {loading ? (
         <p style={{ color: "var(--text-muted)" }}>Loading opportunities…</p>
-      ) : list.length === 0 ? (
+      ) : visible.length === 0 ? (
         <div className="card-muted" style={{ textAlign: "center", padding: 32 }}>
           <p style={{ color: "var(--text-muted)", margin: 0 }}>
-            No opportunities match these filters. Try widening them.
+            {savedOnly
+              ? "Nothing saved yet. Hit ☆ Save on any opportunity to keep it here."
+              : "No opportunities match these filters. Try widening them."}
           </p>
         </div>
       ) : (
@@ -355,8 +443,13 @@ export default function OpportunityList() {
             gap: 16,
           }}
         >
-          {list.map((opp) => (
-            <OpportunityCard key={opp.slug} opp={opp} />
+          {visible.map((opp) => (
+            <OpportunityCard
+              key={opp.slug}
+              opp={opp}
+              saved={Boolean(savedBySlug[opp.slug])}
+              onSaveToggle={handleSaveToggle}
+            />
           ))}
         </div>
       )}
