@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAuth } from "../middleware/auth";
 import * as profiles from "../repositories/profiles";
 import * as opportunityRepo from "../repositories/opportunities";
+import * as vector from "../services/vector/pinecone";
 import {
   OPPORTUNITIES,
   type Opportunity,
@@ -123,6 +124,48 @@ router.get("/match", async (req: Request, res: Response): Promise<void> => {
   const { kind, limit, remoteOnly, freeOnly } = parsed.data;
   const limitN = limit ?? 10;
 
+  // M8 stretch: if Pinecone is configured, use semantic similarity. We only
+  // engage vector mode when there's no kind/remote/free filter — Pinecone
+  // metadata filters are doable but not worth the complexity for hackathon.
+  // The catch returns to SQL ranking on any vector failure (network, quota).
+  if (vector.isEnabled() && !kind && !remoteOnly && !freeOnly) {
+    try {
+      // Lazy seed: if the index is empty, populate it. Idempotent.
+      await vector.seedOpportunities();
+      const queryText = vector.buildProfileQueryText({
+        major: profile.major,
+        educationLevel: profile.educationLevel,
+        experienceLevel: profile.experienceLevel,
+        interests: profile.interests ?? [],
+        currentSkills: profile.currentSkills ?? [],
+        targetIndustries: profile.targetIndustries ?? [],
+        careerGoals: profile.careerGoals,
+      });
+      const matches = await vector.queryByText(queryText, limitN);
+      const bySlug = new Map(OPPORTUNITIES.map((o) => [o.slug, o]));
+      const ranked: RankedOpportunity[] = matches
+        .map((m) => {
+          const opp = bySlug.get(m.slug);
+          if (!opp) return null;
+          const detail = scoreOpportunity(opp, profileTags, profileSkills, audience);
+          return { ...opp, ...detail, score: m.score };
+        })
+        .filter((x): x is RankedOpportunity => x !== null);
+      res.json({
+        profileSnapshot: { tags: profileTags, skills: profileSkills, audience },
+        opportunities: ranked,
+        rankingMode: "vector" as const,
+      });
+      return;
+    } catch (err) {
+      console.warn(
+        "[opportunities] vector path failed, falling back to SQL:",
+        String((err as Error).message ?? err).slice(0, 200),
+      );
+      // fall through to SQL ranking
+    }
+  }
+
   const ranked: RankedOpportunity[] = OPPORTUNITIES.filter((o) =>
     kind ? o.kind === kind : true,
   )
@@ -142,6 +185,7 @@ router.get("/match", async (req: Request, res: Response): Promise<void> => {
       audience,
     },
     opportunities: ranked,
+    rankingMode: "tag-overlap" as const,
   });
 });
 
