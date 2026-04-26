@@ -24,25 +24,17 @@ Personalized career-discovery platform for students, career switchers, and under
 
 ```mermaid
 graph TD
-    subgraph Browser["Browser (Vercel SPA)"]
-      UI["React 19 + Vite<br/>Better Auth UI · TanStack Query"]
-    end
+    UI["React 19 + Vite<br/>Better Auth UI + TanStack Query"]
+    API["Express + TypeScript<br/>helmet, cors, rate-limit, pino"]
+    AUTH["Better Auth<br/>self-hosted"]
+    AI["Gemini service<br/>structured output + Zod"]
+    VEC["Vector layer<br/>optional Pinecone"]
+    NEON[("Neon Postgres<br/>+ Drizzle ORM")]
+    PIN[("Pinecone<br/>opportunities namespace")]
+    GEM["Google Gemini API<br/>2.5-flash + embedding-001"]
 
-    subgraph Edge["Backend (Railway)"]
-      API["Express + TypeScript<br/>helmet · cors · rate-limit · pino"]
-      AUTH["Better Auth<br/>(self-hosted)"]
-      AI["Gemini service<br/>(structured output + Zod)"]
-      VEC["Vector layer<br/>(optional Pinecone)"]
-    end
-
-    subgraph Stores["Data + AI services"]
-      NEON[("Neon Postgres<br/>+ Drizzle ORM")]
-      PIN[("Pinecone<br/>opportunities namespace")]
-      GEM["Google Gemini API<br/>2.5-flash + embedding-001"]
-    end
-
-    UI -- "fetch + Bearer JWT" --> API
-    UI -- "/api/auth/*" --> AUTH
+    UI -->|fetch + Bearer JWT| API
+    UI -->|/api/auth/*| AUTH
     API --> AUTH
     AUTH --> NEON
     API --> AI
@@ -51,11 +43,6 @@ graph TD
     VEC --> PIN
     VEC --> GEM
     API --> NEON
-
-    classDef store fill:#171a23,stroke:#5eead4,color:#cdd2de;
-    classDef svc fill:#171a23,stroke:#a78bfa,color:#cdd2de;
-    class NEON,PIN store;
-    class API,AUTH,AI,VEC,UI svc;
 ```
 
 **Stack**
@@ -95,7 +82,7 @@ sequenceDiagram
     BE->>G: generateContent(model, schema)
     Note over G: gemini-2.5-flash<br/>maxOutputTokens=16384<br/>responseSchema enforces shape
     G-->>BE: structured JSON
-    BE->>BE: Zod parse + clamp confidence ≤ 0.85
+    BE->>BE: Zod parse + clamp confidence to 0.85 max
     BE->>DB: INSERT career_recommendations (batch)
     DB-->>BE: persisted rows
     BE-->>FE: 201 { summary, recommendations }
@@ -111,20 +98,20 @@ If Gemini truncates mid-JSON, the route falls through the model chain (`2.5-flas
 ```mermaid
 flowchart LR
     REQ["GET /api/opportunities/match"]
-    FILT{"kind / remote /<br/>free filter set?"}
+    FILT{"kind, remote, or<br/>free filter set?"}
     EN{"PINECONE_API_KEY<br/>+ INDEX env set?"}
-    SEED["seedOpportunities()<br/>(idempotent — checks<br/>vector count first)"]
-    EMBED["embed profile text<br/>(Gemini gemini-embedding-001)"]
-    PIN["Pinecone query<br/>topK=12, namespace=opportunities"]
+    SEED["seedOpportunities<br/>idempotent: checks<br/>vector count first"]
+    EMBED["embed profile text<br/>Gemini gemini-embedding-001"]
+    PIN["Pinecone query<br/>topK=12, namespace opportunities"]
     HYD["hydrate from in-memory<br/>OPPORTUNITIES catalog"]
-    SQL["tag-overlap rank<br/>(profile.interests ∩ opp.tags)<br/>+ skill overlap + audience boost"]
-    OUT["{ profileSnapshot,<br/>opportunities[],<br/>rankingMode }"]
+    SQL["tag-overlap rank<br/>profile.interests vs opp.tags<br/>+ skill overlap + audience boost"]
+    OUT["response:<br/>profileSnapshot, opportunities,<br/>rankingMode"]
 
     REQ --> FILT
-    FILT -- yes --> SQL
-    FILT -- no --> EN
-    EN -- yes --> SEED
-    EN -- no --> SQL
+    FILT -->|yes| SQL
+    FILT -->|no| EN
+    EN -->|yes| SEED
+    EN -->|no| SQL
     SEED --> EMBED
     EMBED --> PIN
     PIN --> HYD
@@ -184,42 +171,37 @@ graph TD
     ROOT["ramhacks-26/"]
 
     subgraph BE["backend/src"]
-      BIDX["index.ts · server.ts · load-env.ts"]
-      BDB["db/<br/>(client, schema, auth-schema)"]
-      BLIB["lib/<br/>(auth-server)"]
-      BMW["middleware/<br/>(auth)"]
-      BSVC["services/<br/>ai/(gemini, embed, schemas)<br/>vector/(pinecone)"]
-      subgraph FT["features/&lt;domain&gt;/"]
+      BIDX["index.ts, server.ts, load-env.ts"]
+      BDB["db/<br/>client, schema, auth-schema"]
+      BLIB["lib/<br/>auth-server"]
+      BMW["middleware/<br/>auth"]
+      BSVC["services/<br/>ai (gemini, embed, schemas)<br/>vector (pinecone)"]
+      subgraph FT["features per domain"]
         FT_PR["profile/<br/>route + repository + types"]
         FT_CR["careers/<br/>route + repository + prompt"]
         FT_AP["action-plans/<br/>route + repository + prompt"]
-        FT_OP["opportunities/<br/>route + repository<br/>+ catalog (50 entries)<br/>+ seed CLI"]
+        FT_OP["opportunities/<br/>route + repository<br/>+ catalog 50 entries<br/>+ seed CLI"]
         FT_NW["networking/<br/>route + repository + prompt"]
-        FT_ME["me/<br/>route (delete-my-data)"]
+        FT_ME["me/<br/>route delete-my-data"]
       end
     end
 
     subgraph FE["frontend/src"]
-      FAPP["App.tsx · main.tsx"]
-      FAPP_DIR["app/<br/>(Brand, SignedOut, SignedIn,<br/>SmokeTest, DangerZone)"]
-      FFEAT["features/&lt;domain&gt;/<br/>(*.tsx + *.test.tsx)"]
-      FUI["components/ui/<br/>(ErrorBanner, Skeleton)"]
+      FAPP["App.tsx, main.tsx"]
+      FAPP_DIR["app/<br/>Brand, SignedOut, SignedIn,<br/>SmokeTest, DangerZone"]
+      FFEAT["features per domain<br/>tsx + test.tsx"]
+      FUI["components/ui/<br/>ErrorBanner, Skeleton"]
       FAPI["api/client.ts<br/>lib/auth.ts"]
-      FCSS["index.css<br/>(Aurora Dusk tokens<br/>+ utility classes)"]
+      FCSS["index.css<br/>Aurora Dusk tokens<br/>+ utility classes"]
     end
 
     subgraph DOCS["docs/"]
-      DOCFILES["SPEC · API · AI<br/>FRONTEND · SECURITY"]
+      DOCFILES["SPEC, API, AI,<br/>FRONTEND, SECURITY"]
     end
 
     ROOT --> BE
     ROOT --> FE
     ROOT --> DOCS
-
-    classDef pkg fill:#13161e,stroke:#a78bfa,color:#f5f7fa;
-    classDef leaf fill:#171a23,stroke:#262a36,color:#cdd2de;
-    class BE,FE,DOCS,FT pkg;
-    class BIDX,BDB,BLIB,BMW,BSVC,FT_PR,FT_CR,FT_AP,FT_OP,FT_NW,FT_ME,FAPP,FAPP_DIR,FFEAT,FUI,FAPI,FCSS,DOCFILES leaf;
 ```
 
 **Conventions**
