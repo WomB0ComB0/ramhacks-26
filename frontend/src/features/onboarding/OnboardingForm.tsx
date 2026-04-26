@@ -27,26 +27,12 @@ interface ProfileInput {
   constraints?: { schedule?: string; budget?: string; transport?: string };
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  background: "var(--bg-elev)",
-  color: "var(--text-strong)",
-  border: "1px solid var(--border)",
-  borderRadius: 8,
-  padding: "9px 12px",
-  fontSize: 14,
-  fontFamily: "inherit",
-};
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: 13,
-  color: "var(--text-muted)",
-  marginBottom: 6,
-  fontWeight: 500,
-};
-
-const fieldStyle: React.CSSProperties = { marginBottom: 16 };
+// inputStyle/labelStyle removed — global form CSS in index.css handles
+// inputs/textareas/selects, and `.field` + `.field-label` give the
+// label/control rhythm. fieldGap kept as a single "between-fields"
+// margin since OnboardingForm renders fields as direct children of
+// the form (vs NetworkingPanel which uses .stack-3 to gap them).
+const fieldGap = { marginBottom: 16 } as const;
 
 function splitTags(s: string): string[] {
   return s
@@ -120,13 +106,13 @@ export default function OnboardingForm({ onSaved }: { onSaved: () => void }) {
         Used to personalize career matches and the action plan.
       </p>
 
-      <div style={fieldStyle}>
-        <label style={labelStyle} htmlFor="major">
+      <div style={fieldGap}>
+        <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="major">
           Major or focus area *
         </label>
         <input
           id="major"
-          style={inputStyle}
+          
           placeholder="e.g. Computer Science"
           value={major}
           onChange={(e) => setMajor(e.target.value)}
@@ -134,14 +120,14 @@ export default function OnboardingForm({ onSaved }: { onSaved: () => void }) {
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+      <div className="field-row" style={{ marginBottom: 16 }}>
         <div>
-          <label style={labelStyle} htmlFor="education">
+          <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="education">
             Education level
           </label>
           <select
             id="education"
-            style={inputStyle}
+            
             value={educationLevel}
             onChange={(e) => setEducationLevel(e.target.value as EducationLevel)}
           >
@@ -156,12 +142,12 @@ export default function OnboardingForm({ onSaved }: { onSaved: () => void }) {
           </select>
         </div>
         <div>
-          <label style={labelStyle} htmlFor="experience">
+          <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="experience">
             Experience level
           </label>
           <select
             id="experience"
-            style={inputStyle}
+            
             value={experienceLevel}
             onChange={(e) => setExperienceLevel(e.target.value as ExperienceLevel)}
           >
@@ -173,52 +159,52 @@ export default function OnboardingForm({ onSaved }: { onSaved: () => void }) {
         </div>
       </div>
 
-      <div style={fieldStyle}>
-        <label style={labelStyle} htmlFor="interests">
+      <div style={fieldGap}>
+        <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="interests">
           Interests * <span style={{ opacity: 0.6 }}>(comma-separated)</span>
         </label>
         <input
           id="interests"
-          style={inputStyle}
+          
           placeholder="e.g. ml, education, social impact"
           value={interests}
           onChange={(e) => setInterests(e.target.value)}
         />
       </div>
 
-      <div style={fieldStyle}>
-        <label style={labelStyle} htmlFor="skills">
+      <div style={fieldGap}>
+        <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="skills">
           Current skills * <span style={{ opacity: 0.6 }}>(comma-separated)</span>
         </label>
         <input
           id="skills"
-          style={inputStyle}
+          
           placeholder="e.g. python, react, sql"
           value={currentSkills}
           onChange={(e) => setCurrentSkills(e.target.value)}
         />
       </div>
 
-      <div style={fieldStyle}>
-        <label style={labelStyle} htmlFor="industries">
+      <div style={fieldGap}>
+        <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="industries">
           Target industries <span style={{ opacity: 0.6 }}>(comma-separated)</span>
         </label>
         <input
           id="industries"
-          style={inputStyle}
+          
           placeholder="e.g. edtech, nonprofit, healthcare"
           value={targetIndustries}
           onChange={(e) => setTargetIndustries(e.target.value)}
         />
       </div>
 
-      <div style={fieldStyle}>
-        <label style={labelStyle} htmlFor="goals">
+      <div style={fieldGap}>
+        <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="goals">
           Career goals *
         </label>
         <textarea
           id="goals"
-          style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
+          style={{ minHeight: 80, resize: "vertical" }}
           placeholder="What you want to do, in one or two sentences."
           value={careerGoals}
           onChange={(e) => setCareerGoals(e.target.value)}
@@ -226,21 +212,21 @@ export default function OnboardingForm({ onSaved }: { onSaved: () => void }) {
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+      <div className="field-row" style={{ marginBottom: 16 }}>
         <div>
-          <label style={labelStyle} htmlFor="budget">
+          <label className="field-label" style={{ display: "block", marginBottom: 6 }} htmlFor="budget">
             Budget constraints
           </label>
           <input
             id="budget"
-            style={inputStyle}
+            
             placeholder="e.g. low — free programs only"
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
           />
         </div>
         <div>
-          <label style={labelStyle}>Remote-only OK?</label>
+          <label className="field-label" style={{ display: "block", marginBottom: 6 }}>Remote-only OK?</label>
           <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9 }}>
             <input
               type="checkbox"
