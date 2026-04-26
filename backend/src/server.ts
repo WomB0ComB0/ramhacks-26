@@ -35,7 +35,13 @@ export function buildApp() {
     cors({
       origin,
       credentials: true,
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Neon-Client-Info", // sent by @neondatabase/auth SDK on every request
+        "X-Requested-With",
+      ],
+      exposedHeaders: ["Set-Auth-Token"], // Better Auth uses this for bearer flows
     }),
   );
 
