@@ -38,6 +38,21 @@ export const auth = betterAuth({
   // bearer: accept Authorization: Bearer <token> from cross-origin clients
   // jwt: stateless JWT issuance + JWKS endpoint at /api/auth/jwks
   plugins: [bearer(), jwt()],
+  // Brute-force protection on credential endpoints. Better Auth's built-in
+  // limiter runs before any handler, so a credential-stuffing attempt costs
+  // the attacker latency without reaching the DB. Default storage is in-memory
+  // (sufficient for single-container Railway deploy); persist to DB if you
+  // ever scale horizontally.
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 100,
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+      "/sign-up/email": { window: 60, max: 5 },
+      "/forget-password": { window: 60, max: 3 },
+    },
+  },
   advanced: {
     // The neon_auth tables have `id uuid DEFAULT gen_random_uuid()` — let
     // Postgres fill the id column instead of Better Auth generating nanoid
