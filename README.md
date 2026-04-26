@@ -2,7 +2,7 @@
 
 Personalized career-discovery platform for students, career switchers, and underrepresented talent. Profile in → AI-personalized career matches + a 7d/30d/90d/6mo/long-term action plan out.
 
-> Built for **RamHacks 2026**. Live demo: _add link after deploy_.
+> Built for **RamHacks 2026**. **Live demo:** https://ramhacks-26.vercel.app · API: https://ramhacks-26-production.up.railway.app/api/health
 
 **Stack:** Vite + React 19 (frontend) · Express + TypeScript (backend) · Neon Postgres + Drizzle ORM · Neon Auth (Better-Auth based, JWT) · Google Gemini (career matcher + action plan) · Pinecone (planned for v1.1).
 
