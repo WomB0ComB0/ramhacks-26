@@ -107,11 +107,8 @@ router.post("/generate", aiLimiter, async (req: Request, res: Response): Promise
 router.get("/latest", async (req: Request, res: Response): Promise<void> => {
   const userId = req.auth!.userId;
   const row = await plans.getLatest(userId);
-  if (!row) {
-    res.status(404).json({ error: { code: "not_found", message: "No action plan yet." } });
-    return;
-  }
-  res.json({ plan: row });
+  // 200 with `plan: null` so the browser DevTools doesn't flag absence as a network error.
+  res.json({ plan: row ?? null });
 });
 
 router.get("/", async (req: Request, res: Response): Promise<void> => {

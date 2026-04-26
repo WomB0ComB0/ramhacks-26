@@ -170,17 +170,13 @@ export default function ActionPlanPanel() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await api.get<{ plan: PlanRow }>("/api/action-plans/latest");
+        const res = await api.get<{ plan: PlanRow | null }>("/api/action-plans/latest");
         if (!cancelled) setPlan(res.plan);
       } catch (e) {
         if (cancelled) return;
-        if (e instanceof ApiError && e.status === 404) {
-          // expected — no plan yet
-        } else if (e instanceof ApiError) {
-          setError(`${e.status} ${e.code}: ${e.message}`);
-        } else {
-          setError(String(e));
-        }
+        const msg =
+          e instanceof ApiError ? `${e.status} ${e.code}: ${e.message}` : String(e);
+        setError(msg);
       } finally {
         if (!cancelled) setLoading(false);
       }
