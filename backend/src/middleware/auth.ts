@@ -46,8 +46,16 @@ export const requireAuth = async (
     next();
   } catch (err) {
     req.log?.error({ err }, "auth: getSession failed");
+    console.error("[auth] getSession threw:", err);
     res.status(500).json({
-      error: { code: "internal", message: "Auth verification failed." },
+      error: {
+        code: "internal",
+        message: "Auth verification failed.",
+        details:
+          process.env.NODE_ENV === "production"
+            ? undefined
+            : String((err as Error)?.message ?? err).slice(0, 500),
+      },
     });
   }
 };
