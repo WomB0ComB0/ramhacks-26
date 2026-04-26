@@ -331,24 +331,18 @@ export default function OpportunityList() {
 
   const visible = savedOnly ? list.filter((o) => savedBySlug[o.slug]) : list;
 
+  const filterLabel = { cursor: "pointer", gap: 6 } as const;
+
   return (
-    <section style={{ marginTop: 24 }}>
+    <section className="section">
       <header style={{ marginBottom: 12 }}>
         <h2 style={{ margin: 0 }}>Opportunities</h2>
-        <p style={{ color: "var(--text-muted)", marginTop: 4, fontSize: 14 }}>
+        <p className="muted body-sm" style={{ marginTop: 4 }}>
           Curated fellowships, internships, and programs ranked against your profile.
         </p>
       </header>
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 8,
-          marginBottom: 16,
-          alignItems: "center",
-        }}
-      >
+      <div className="cluster-2" style={{ marginBottom: 16 }}>
         <div className="seg" role="tablist">
           {KIND_OPTIONS.map((k) => (
             <button
@@ -361,16 +355,7 @@ export default function OpportunityList() {
             </button>
           ))}
         </div>
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            fontSize: 13,
-            color: "var(--text-muted)",
-            cursor: "pointer",
-          }}
-        >
+        <label className="row muted-sm" style={filterLabel}>
           <input
             type="checkbox"
             checked={remoteOnly}
@@ -378,16 +363,7 @@ export default function OpportunityList() {
           />
           Remote only
         </label>
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            fontSize: 13,
-            color: "var(--text-muted)",
-            cursor: "pointer",
-          }}
-        >
+        <label className="row muted-sm" style={filterLabel}>
           <input
             type="checkbox"
             checked={freeOnly}
@@ -395,16 +371,7 @@ export default function OpportunityList() {
           />
           Free only
         </label>
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            fontSize: 13,
-            color: "var(--text-muted)",
-            cursor: "pointer",
-          }}
-        >
+        <label className="row muted-sm" style={filterLabel}>
           <input
             type="checkbox"
             checked={savedOnly}
@@ -419,21 +386,13 @@ export default function OpportunityList() {
       {loading ? (
         <SkeletonGrid count={3} />
       ) : visible.length === 0 ? (
-        <div className="card-muted" style={{ textAlign: "center", padding: 32 }}>
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>
-            {savedOnly
-              ? "Nothing saved yet. Hit ☆ Save on any opportunity to keep it here."
-              : "No opportunities match these filters. Try widening them."}
-          </p>
+        <div className="empty-state">
+          {savedOnly
+            ? "Nothing saved yet. Hit ☆ Save on any opportunity to keep it here."
+            : "No opportunities match these filters. Try widening them."}
         </div>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: 16,
-          }}
-        >
+        <div className="card-grid">
           {visible.map((opp) => (
             <OpportunityCard
               key={opp.slug}

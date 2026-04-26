@@ -266,29 +266,11 @@ export default function CareerMatches() {
   };
 
   return (
-    <section style={{ marginTop: 24 }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-          marginBottom: 16,
-          gap: 12,
-          flexWrap: "wrap",
-        }}
-      >
+    <section className="section">
+      <header className="row-baseline" style={{ marginBottom: 16, flexWrap: "wrap" }}>
         <h2 style={{ margin: 0 }}>Career matches</h2>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 13,
-              color: "var(--text-muted)",
-              cursor: "pointer",
-            }}
-          >
+        <div className="row" style={{ gap: 12 }}>
+          <label className="row muted-sm" style={{ cursor: "pointer", gap: 6 }}>
             <input
               type="checkbox"
               checked={savedOnly}
@@ -311,20 +293,13 @@ export default function CareerMatches() {
 
       {meta && (
         <div className="card-muted" style={{ marginBottom: 16 }}>
-          <p style={{ margin: 0, color: "var(--text)" }}>{meta.summary}</p>
+          <p className="body-sm" style={{ margin: 0 }}>{meta.summary}</p>
           {meta.nextSteps.length > 0 && (
             <>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "var(--text-muted)",
-                  fontWeight: 500,
-                  margin: "12px 0 6px",
-                }}
-              >
+              <div className="eyebrow" style={{ margin: "12px 0 6px" }}>
                 Next steps
               </div>
-              <ul style={{ margin: 0, paddingLeft: 18, color: "var(--text)", fontSize: 14 }}>
+              <ul className="body-sm" style={{ margin: 0, paddingLeft: 18 }}>
                 {meta.nextSteps.map((s, i) => (
                   <li key={i}>{s}</li>
                 ))}
@@ -332,14 +307,7 @@ export default function CareerMatches() {
             </>
           )}
           {meta.safetyNotes && (
-            <p
-              style={{
-                margin: "12px 0 0",
-                fontSize: 12,
-                color: "var(--text-muted)",
-                fontStyle: "italic",
-              }}
-            >
+            <p className="muted-italic" style={{ margin: "12px 0 0" }}>
               {meta.safetyNotes}
             </p>
           )}
@@ -352,27 +320,19 @@ export default function CareerMatches() {
           const visible = savedOnly ? list.filter((r) => r.saved) : list;
           if (visible.length === 0) {
             return (
-              <div className="card-muted" style={{ textAlign: "center", padding: 32 }}>
-                <p style={{ color: "var(--text-muted)", margin: 0 }}>
-                  {savedOnly
-                    ? "Nothing saved yet. Star a match to keep it here."
-                    : (
-                      <>
-                        No matches yet. Click <strong>Match me</strong> to generate from your profile.
-                      </>
-                    )}
-                </p>
+              <div className="empty-state">
+                {savedOnly
+                  ? "Nothing saved yet. Star a match to keep it here."
+                  : (
+                    <>
+                      No matches yet. Click <strong>Match me</strong> to generate from your profile.
+                    </>
+                  )}
               </div>
             );
           }
           return (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-                gap: 16,
-              }}
-            >
+            <div className="card-grid">
               {visible.map((row) => (
                 <CareerCard key={row.id} row={row} onSaveToggle={handleSaveToggle} />
               ))}
