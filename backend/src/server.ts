@@ -12,7 +12,15 @@ import { auth } from "./lib/auth-server";
 
 const logger = pino({
   level: process.env.LOG_LEVEL ?? "info",
-  redact: ["req.headers.authorization", "req.headers.cookie"],
+  redact: [
+    "req.headers.authorization",
+    "req.headers.cookie",
+    "req.body.password",
+    "req.body.email",
+    "req.body.token",
+    "req.body.secret",
+    "res.headers['set-cookie']",
+  ],
 });
 
 export function buildApp() {
