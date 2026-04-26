@@ -5,7 +5,8 @@ interface Props {
 }
 
 export default function ErrorBanner({ message, onDismiss, variant = "error" }: Props) {
-  const color = variant === "error" ? "#fb7185" : "#fbbf24";
+  const color = variant === "error" ? "var(--danger)" : "var(--warning)";
+  const bg = variant === "error" ? "var(--danger-soft)" : "var(--warning-soft)";
   return (
     <div
       role="alert"
@@ -15,7 +16,7 @@ export default function ErrorBanner({ message, onDismiss, variant = "error" }: P
         padding: "10px 14px",
         borderRadius: 10,
         border: `1px solid ${color}`,
-        background: "rgba(251, 113, 133, 0.06)",
+        background: bg,
         display: "flex",
         gap: 12,
         alignItems: "flex-start",

@@ -51,16 +51,12 @@ const HORIZONS: ReadonlyArray<{ key: Horizon; label: string }> = [
 ];
 
 function DifficultyPill({ value }: { value: ActionStep["difficulty"] }) {
-  const colors: Record<ActionStep["difficulty"], string> = {
-    easy: "#34d399",
-    moderate: "#fbbf24",
-    hard: "#fb7185",
+  const tintMap: Record<ActionStep["difficulty"], string> = {
+    easy: "tint-success",
+    moderate: "tint-accent2",
+    hard: "tint-warning",
   };
-  return (
-    <span className="kbd" style={{ color: colors[value] }}>
-      {value}
-    </span>
-  );
+  return <span className={`kbd ${tintMap[value]}`}>{value}</span>;
 }
 
 function StepCard({ step, index }: { step: ActionStep; index: number }) {

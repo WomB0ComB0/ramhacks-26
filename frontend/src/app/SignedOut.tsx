@@ -47,7 +47,7 @@ export default function SignedOut() {
       >
         <div style={{ width: "100%", maxWidth: 440 }}>
           <div style={{ textAlign: "center", marginBottom: 24 }}>
-            <h1>Find a path that actually fits.</h1>
+            <h1 className="hero-headline">Find a path that actually fits.</h1>
             <p style={{ color: "var(--text-muted)", marginTop: 10 }}>
               Career matches, fellowships, and an action plan—personalized, not generic.
             </p>

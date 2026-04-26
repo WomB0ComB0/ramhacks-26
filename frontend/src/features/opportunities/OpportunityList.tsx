@@ -77,23 +77,20 @@ function formatMoney(n: number) {
 }
 
 function KindBadge({ kind }: { kind: OpportunityKind }) {
-  const colorMap: Record<OpportunityKind, string> = {
-    fellowship: "#a78bfa",
-    internship: "#34d399",
-    scholarship: "#fbbf24",
-    program: "#60a5fa",
-    bootcamp: "#fb7185",
-    community: "#f472b6",
-    competition: "#f97316",
+  const tintMap: Record<OpportunityKind, string> = {
+    fellowship: "tint-accent",
+    internship: "tint-success",
+    scholarship: "tint-warning",
+    program: "tint-info",
+    bootcamp: "tint-danger",
+    community: "tint-accent2",
+    competition: "tint-warning",
   };
+  const tintClass = tintMap[kind] ?? "tint-accent";
   return (
     <span
-      className="kbd"
-      style={{
-        color: colorMap[kind],
-        borderColor: colorMap[kind],
-        textTransform: "capitalize",
-      }}
+      className={`kbd ${tintClass}`}
+      style={{ textTransform: "capitalize" }}
     >
       {kind}
     </span>
@@ -110,7 +107,7 @@ function OpportunityCard({
   onSaveToggle: (slug: string, next: boolean, savedRowId?: string) => void;
 }) {
   return (
-    <article className="card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <article className="card card-hoverable" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <header
         style={{
           display: "flex",
@@ -154,23 +151,15 @@ function OpportunityCard({
       <p style={{ color: "var(--text)", fontSize: 14, margin: 0 }}>{opp.oneLiner}</p>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, fontSize: 12 }}>
-        {opp.remoteOk && (
-          <span className="kbd" style={{ color: "#34d399" }}>
-            Remote OK
-          </span>
-        )}
+        {opp.remoteOk && <span className="kbd tint-success">Remote OK</span>}
         {opp.location && <span className="kbd">{opp.location}</span>}
         {opp.costUsd === 0 ? (
-          <span className="kbd" style={{ color: "#34d399" }}>
-            Free
-          </span>
+          <span className="kbd tint-success">Free</span>
         ) : (
           <span className="kbd">Cost {formatMoney(opp.costUsd)}</span>
         )}
         {opp.stipendUsd ? (
-          <span className="kbd" style={{ color: "#34d399" }}>
-            Stipend {formatMoney(opp.stipendUsd)}
-          </span>
+          <span className="kbd tint-success">Stipend {formatMoney(opp.stipendUsd)}</span>
         ) : null}
         {opp.applyByMonth ? (
           <span className="kbd">Apply by {MONTHS[opp.applyByMonth - 1]}</span>
@@ -193,12 +182,12 @@ function OpportunityCard({
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {opp.matchedTags.map((t) => (
-              <span key={`t-${t}`} className="kbd" style={{ color: "#a78bfa" }}>
+              <span key={`t-${t}`} className="kbd tint-accent">
                 {t}
               </span>
             ))}
             {opp.matchedSkills.map((s) => (
-              <span key={`s-${s}`} className="kbd" style={{ color: "#60a5fa" }}>
+              <span key={`s-${s}`} className="kbd tint-info">
                 {s}
               </span>
             ))}

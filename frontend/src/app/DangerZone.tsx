@@ -24,8 +24,8 @@ export default function DangerZone() {
 
   return (
     <section style={{ marginTop: 32 }}>
-      <h2 style={{ color: "#fb7185" }}>Danger zone</h2>
-      <div className="card-muted" style={{ marginTop: 8, borderColor: "#fb7185" }}>
+      <h2 style={{ color: "var(--danger)" }}>Danger zone</h2>
+      <div className="card-muted" style={{ marginTop: 8, borderColor: "var(--danger)" }}>
         <p style={{ margin: 0, color: "var(--text)" }}>
           Delete your profile, career matches, saved opportunities, and action plans. Your
           sign-in account stays so you can re-onboard, or use the Account section above to
@@ -36,7 +36,7 @@ export default function DangerZone() {
           {!confirming ? (
             <button
               className="btn"
-              style={{ borderColor: "#fb7185", color: "#fb7185" }}
+              style={{ borderColor: "var(--danger)", color: "var(--danger)" }}
               onClick={() => setConfirming(true)}
             >
               Delete my data
@@ -45,7 +45,7 @@ export default function DangerZone() {
             <>
               <button
                 className="btn"
-                style={{ background: "#fb7185", borderColor: "#fb7185", color: "#fff" }}
+                style={{ background: "var(--danger)", borderColor: "var(--danger)", color: "#fff" }}
                 onClick={wipe}
                 disabled={busy}
               >

@@ -42,20 +42,11 @@ interface ListResponse {
 
 function ConfidenceBar({ value }: { value: number }) {
   const pct = Math.round(value * 100);
-  const color = value >= 0.7 ? "#34d399" : value >= 0.45 ? "#fbbf24" : "#fb7185";
+  const fillClass =
+    value >= 0.7 ? "confidence-fill-high" : value >= 0.45 ? "confidence-fill-mid" : "confidence-fill-low";
   return (
-    <div
-      title={`confidence ${pct}%`}
-      style={{
-        width: 90,
-        height: 6,
-        background: "var(--bg-elev)",
-        borderRadius: 999,
-        overflow: "hidden",
-        border: "1px solid var(--border)",
-      }}
-    >
-      <div style={{ width: `${pct}%`, height: "100%", background: color }} />
+    <div title={`confidence ${pct}%`} className="confidence-track">
+      <div className={`confidence-fill ${fillClass}`} style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -67,7 +58,17 @@ function DifficultyPill({ value }: { value: string }) {
     hard: "hard",
     very_hard: "very hard",
   };
-  return <span className="kbd">{labels[value] ?? value}</span>;
+  const tint =
+    value === "easy"
+      ? "tint-success"
+      : value === "moderate"
+        ? "tint-accent2"
+        : value === "hard"
+          ? "tint-warning"
+          : value === "very_hard"
+            ? "tint-danger"
+            : "";
+  return <span className={`kbd ${tint}`}>{labels[value] ?? value}</span>;
 }
 
 function CareerCard({
@@ -78,7 +79,7 @@ function CareerCard({
   onSaveToggle: (id: string, saved: boolean) => void;
 }) {
   return (
-    <article className="card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <article className="card card-hoverable" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <header
         style={{
           display: "flex",
@@ -132,7 +133,7 @@ function CareerCard({
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {row.missingSkills.map((s) => (
-              <span key={s} className="kbd" style={{ color: "#fbbf24" }}>
+              <span key={s} className="kbd tint-warning">
                 {s}
               </span>
             ))}
