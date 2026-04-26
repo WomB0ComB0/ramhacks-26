@@ -168,40 +168,56 @@ Open `http://localhost:5173` → sign up → fill onboarding → click **Match m
 
 ```mermaid
 graph TD
-    ROOT["ramhacks-26/"]
-
-    subgraph BE["backend/src"]
-      BIDX["index.ts, server.ts, load-env.ts"]
-      BDB["db/<br/>client, schema, auth-schema"]
-      BLIB["lib/<br/>auth-server"]
-      BMW["middleware/<br/>auth"]
-      BSVC["services/<br/>ai (gemini, embed, schemas)<br/>vector (pinecone)"]
-      subgraph FT["features per domain"]
-        FT_PR["profile/<br/>route + repository + types"]
-        FT_CR["careers/<br/>route + repository + prompt"]
-        FT_AP["action-plans/<br/>route + repository + prompt"]
-        FT_OP["opportunities/<br/>route + repository<br/>+ catalog 50 entries<br/>+ seed CLI"]
-        FT_NW["networking/<br/>route + repository + prompt"]
-        FT_ME["me/<br/>route delete-my-data"]
-      end
-    end
-
-    subgraph FE["frontend/src"]
-      FAPP["App.tsx, main.tsx"]
-      FAPP_DIR["app/<br/>Brand, SignedOut, SignedIn,<br/>SmokeTest, DangerZone"]
-      FFEAT["features per domain<br/>tsx + test.tsx"]
-      FUI["components/ui/<br/>ErrorBanner, Skeleton"]
-      FAPI["api/client.ts<br/>lib/auth.ts"]
-      FCSS["index.css<br/>Aurora Dusk tokens<br/>+ utility classes"]
-    end
-
-    subgraph DOCS["docs/"]
-      DOCFILES["SPEC, API, AI,<br/>FRONTEND, SECURITY"]
-    end
+    ROOT["ramhacks-26"]
+    BE["backend/src"]
+    BIDX["index.ts, server.ts, load-env.ts"]
+    BDB["db<br/>client, schema, auth-schema"]
+    BLIB["lib<br/>auth-server"]
+    BMW["middleware<br/>auth"]
+    BSVC["services<br/>ai: gemini, embed, schemas<br/>vector: pinecone"]
+    BFT["features per domain"]
+    FT_PR["profile<br/>route + repository + types"]
+    FT_CR["careers<br/>route + repository + prompt"]
+    FT_AP["action-plans<br/>route + repository + prompt"]
+    FT_OP["opportunities<br/>route + repository<br/>+ catalog: 50 entries<br/>+ seed CLI"]
+    FT_NW["networking<br/>route + repository + prompt"]
+    FT_ME["me<br/>route: delete-my-data"]
+    FE["frontend/src"]
+    FAPP["App.tsx, main.tsx"]
+    FAPP_DIR["app<br/>Brand, SignedOut, SignedIn,<br/>SmokeTest, DangerZone"]
+    FFEAT["features per domain<br/>tsx + test.tsx"]
+    FUI["components/ui<br/>ErrorBanner, Skeleton"]
+    FAPI["api/client.ts<br/>lib/auth.ts"]
+    FCSS["index.css<br/>Aurora Dusk tokens<br/>+ utility classes"]
+    DOCS["docs"]
+    DOCFILES["SPEC, API, AI,<br/>FRONTEND, SECURITY"]
 
     ROOT --> BE
     ROOT --> FE
     ROOT --> DOCS
+
+    BE --> BIDX
+    BE --> BDB
+    BE --> BLIB
+    BE --> BMW
+    BE --> BSVC
+    BE --> BFT
+
+    BFT --> FT_PR
+    BFT --> FT_CR
+    BFT --> FT_AP
+    BFT --> FT_OP
+    BFT --> FT_NW
+    BFT --> FT_ME
+
+    FE --> FAPP
+    FE --> FAPP_DIR
+    FE --> FFEAT
+    FE --> FUI
+    FE --> FAPI
+    FE --> FCSS
+
+    DOCS --> DOCFILES
 ```
 
 **Conventions**
