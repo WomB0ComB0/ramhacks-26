@@ -1,11 +1,16 @@
 import { GoogleGenAI, Type, type Model } from "@google/genai";
-import { CareerMatchResponse, ActionPlanResponse } from "./schemas";
+import { CareerMatchResponse, ActionPlanResponse, NetworkingMessageResponse } from "./schemas";
 import { buildCareerPrompt, CAREER_SYSTEM, type ProfileForPrompt } from "./prompts/career";
 import {
   ACTION_PLAN_SYSTEM,
   buildActionPlanPrompt,
   type ActionPlanContext,
 } from "./prompts/actionPlan";
+import {
+  NETWORKING_SYSTEM,
+  buildNetworkingPrompt,
+  type NetworkingContext,
+} from "./prompts/networking";
 
 // Adapted from Mike Odnis' GeminiService pattern:
 //   - Auto-discovers available models via genAI.models.list() (cached)
@@ -336,6 +341,79 @@ export async function generateActionPlan(
       }
       if (!isRateLimitError(err) && !isModelMissingError(err)) {
         throw new Error(`Gemini action plan generation failed (${modelName}): ${msg}`);
+      }
+    }
+  }
+
+  throw new Error(
+    `All Gemini models exhausted [${models.slice(0, 5).join(", ")}...]: ${String(
+      (lastError as Error)?.message ?? lastError,
+    )}`,
+  );
+}
+
+// ---------- Networking Message ----------
+
+const networkingResponseSchema = {
+  type: Type.OBJECT,
+  properties: {
+    message: { type: Type.STRING },
+    alternatives: { type: Type.ARRAY, items: { type: Type.STRING } },
+    followUps: { type: Type.ARRAY, items: { type: Type.STRING } },
+    questions: { type: Type.ARRAY, items: { type: Type.STRING } },
+    subjectLine: { type: Type.STRING },
+    toneNotes: { type: Type.STRING },
+  },
+  required: ["message", "alternatives", "followUps", "questions"],
+} as const;
+
+export async function generateNetworkingMessage(
+  ctx: NetworkingContext,
+): Promise<NetworkingMessageResponse> {
+  const userPrompt = buildNetworkingPrompt(ctx);
+  const models = await getModelFallbackChain(process.env.GEMINI_MODEL);
+
+  let lastError: unknown;
+
+  for (let i = 0; i < models.length; i++) {
+    const modelName = models[i]!;
+    try {
+      const result = await genAI.models.generateContent({
+        model: modelName,
+        contents: userPrompt,
+        config: {
+          systemInstruction: NETWORKING_SYSTEM,
+          temperature: 0.7,
+          // Networking outputs are short - 8K is plenty.
+          maxOutputTokens: 8192,
+          responseMimeType: "application/json",
+          responseSchema: networkingResponseSchema,
+        },
+      });
+
+      const finishReason = result.candidates?.[0]?.finishReason;
+      if (finishReason && finishReason !== "STOP") {
+        console.warn(`[gemini-net] ${modelName} finishReason=${finishReason} (likely truncated)`);
+      }
+
+      const text = result.text;
+      if (!text) throw new Error("Gemini returned empty content");
+
+      const parsed = JSON.parse(text) as unknown;
+      const validated = NetworkingMessageResponse.parse(parsed);
+      if (i > 0) console.warn(`[gemini-net] succeeded on fallback model ${modelName}`);
+      return validated;
+    } catch (err) {
+      lastError = err;
+      const msg = String((err as Error)?.message ?? err).slice(0, 300);
+      console.error(`[gemini-net] ${modelName} failed: ${msg}`);
+      const next = models[i + 1];
+      if ((isRateLimitError(err) || isModelMissingError(err)) && next) {
+        console.warn(`[gemini-net] falling through to ${next}`);
+        continue;
+      }
+      if (!isRateLimitError(err) && !isModelMissingError(err)) {
+        throw new Error(`Gemini networking generation failed (${modelName}): ${msg}`);
       }
     }
   }

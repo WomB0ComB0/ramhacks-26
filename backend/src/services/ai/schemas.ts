@@ -95,3 +95,16 @@ export const ActionPlanResponse = z.object({
 export type ActionPlanResponse = z.infer<typeof ActionPlanResponse>;
 
 export type CareerMatchResponse = z.infer<typeof CareerMatchResponse>;
+
+// ---------- Networking Message ----------
+
+export const NetworkingMessageResponse = z.object({
+  message: z.string().min(20).max(3000),
+  alternatives: z.array(z.string().max(3000)).max(3),
+  followUps: z.array(z.string().max(2000)).max(3),
+  questions: z.array(z.string().max(500)).max(5),
+  subjectLine: z.string().max(160).optional(),
+  toneNotes: z.string().max(800).optional(),
+});
+
+export type NetworkingMessageResponse = z.infer<typeof NetworkingMessageResponse>;

@@ -10,6 +10,7 @@ import careersRouter from "./routes/careers";
 import actionPlansRouter from "./routes/actionPlans";
 import opportunitiesRouter from "./routes/opportunities";
 import meRouter from "./routes/me";
+import networkingRouter from "./routes/networking";
 import { auth } from "./lib/auth-server";
 
 const logger = pino({
@@ -73,6 +74,7 @@ export function buildApp() {
   app.use("/api/action-plans", actionPlansRouter);
   app.use("/api/opportunities", opportunitiesRouter);
   app.use("/api/me", meRouter);
+  app.use("/api/networking", networkingRouter);
 
   // 404 fallback for unmatched /api/*
   app.use("/api", (_req, res) => {
