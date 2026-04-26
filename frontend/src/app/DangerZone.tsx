@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { api, ApiError } from "../api/client";
-import { signOut } from "../lib/auth";
-import ErrorBanner from "../components/ErrorBanner";
+import { api, ApiError } from "@/api/client";
+import { signOut } from "@/lib/auth";
+import ErrorBanner from "@/components/ui/ErrorBanner";
 
 export default function DangerZone() {
   const [confirming, setConfirming] = useState(false);

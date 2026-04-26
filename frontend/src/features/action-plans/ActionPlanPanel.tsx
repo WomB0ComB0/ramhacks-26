@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { api, ApiError } from "../api/client";
-import ErrorBanner from "./ErrorBanner";
+import { api, ApiError } from "@/api/client";
+import ErrorBanner from "@/components/ui/ErrorBanner";
 
 interface Resource {
   label: string;

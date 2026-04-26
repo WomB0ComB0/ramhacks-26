@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { api, ApiError } from "../api/client";
-import ErrorBanner from "./ErrorBanner";
+import { api, ApiError } from "@/api/client";
+import ErrorBanner from "@/components/ui/ErrorBanner";
 
 type Channel = "linkedin" | "email" | "twitter" | "in_person";
 type Tone = "warm" | "professional" | "concise" | "enthusiastic" | "humble";

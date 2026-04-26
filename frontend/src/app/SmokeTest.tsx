@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { api, ApiError } from "../api/client";
-import ErrorBanner from "../components/ErrorBanner";
+import { api, ApiError } from "@/api/client";
+import ErrorBanner from "@/components/ui/ErrorBanner";
 
 // Dev-only API smoke test. Hidden behind ?debug=1 in production.
 export default function SmokeTest() {

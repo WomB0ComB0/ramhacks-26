@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { api, ApiError } from "../api/client";
-import ErrorBanner from "./ErrorBanner";
-import { SkeletonGrid } from "./Skeleton";
+import { api, ApiError } from "@/api/client";
+import ErrorBanner from "@/components/ui/ErrorBanner";
+import { SkeletonGrid } from "@/components/ui/Skeleton";
 
 interface SuggestedProject {
   name: string;
