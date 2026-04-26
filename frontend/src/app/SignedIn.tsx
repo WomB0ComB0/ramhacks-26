@@ -1,16 +1,22 @@
+import { lazy, Suspense } from "react";
 import { AccountView } from "@neondatabase/neon-js/auth/react/ui";
 import { signOut } from "@/lib/auth";
 import { useProfile } from "@/features/profile/useProfile";
 import ProfileSummary from "@/features/profile/ProfileSummary";
-import OnboardingForm from "@/features/onboarding/OnboardingForm";
-import CareerMatches from "@/features/careers/CareerMatches";
-import OpportunityList from "@/features/opportunities/OpportunityList";
-import ActionPlanPanel from "@/features/action-plans/ActionPlanPanel";
-import NetworkingPanel from "@/features/networking/NetworkingPanel";
 import ErrorBanner from "@/components/ui/ErrorBanner";
+import { SkeletonGrid } from "@/components/ui/Skeleton";
 import Brand from "./Brand";
 import SmokeTest from "./SmokeTest";
 import DangerZone from "./DangerZone";
+
+// Heavy feature panels are lazy-loaded so they ship as separate Vite
+// chunks. ProfileSummary stays static — it's small and renders immediately
+// off the same fetch the SignedIn shell already needs.
+const OnboardingForm = lazy(() => import("@/features/onboarding/OnboardingForm"));
+const CareerMatches = lazy(() => import("@/features/careers/CareerMatches"));
+const OpportunityList = lazy(() => import("@/features/opportunities/OpportunityList"));
+const ActionPlanPanel = lazy(() => import("@/features/action-plans/ActionPlanPanel"));
+const NetworkingPanel = lazy(() => import("@/features/networking/NetworkingPanel"));
 
 export default function SignedIn({
   user,
@@ -55,15 +61,27 @@ export default function SignedIn({
 
         {state.kind === "error" && <ErrorBanner message={state.message} />}
 
-        {state.kind === "absent" && <OnboardingForm onSaved={refetch} />}
+        {state.kind === "absent" && (
+          <Suspense fallback={<p style={{ color: "var(--text-muted)" }}>Loading form…</p>}>
+            <OnboardingForm onSaved={refetch} />
+          </Suspense>
+        )}
 
         {state.kind === "ready" && (
           <>
             <ProfileSummary profile={state.profile} />
-            <CareerMatches />
-            <OpportunityList />
-            <ActionPlanPanel />
-            <NetworkingPanel />
+            <Suspense fallback={<SkeletonGrid count={3} />}>
+              <CareerMatches />
+            </Suspense>
+            <Suspense fallback={<SkeletonGrid count={3} />}>
+              <OpportunityList />
+            </Suspense>
+            <Suspense fallback={<SkeletonGrid count={2} />}>
+              <ActionPlanPanel />
+            </Suspense>
+            <Suspense fallback={<SkeletonGrid count={1} />}>
+              <NetworkingPanel />
+            </Suspense>
           </>
         )}
 
