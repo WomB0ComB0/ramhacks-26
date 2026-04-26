@@ -1,8 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, jwt } from "better-auth/plugins";
-import { db } from "../db/client";
-import * as authSchema from "../db/auth-schema";
+import { db } from "@/db/client";
+import * as authSchema from "@/db/auth-schema";
 
 const secret = process.env.BETTER_AUTH_SECRET;
 if (!secret || secret.length < 32) {

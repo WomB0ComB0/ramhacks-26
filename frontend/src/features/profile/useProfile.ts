@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, ApiError } from "../../api/client";
+import { api, ApiError } from "@/api/client";
 import type { ProfileRow } from "./types";
 
 export type ProfileState =

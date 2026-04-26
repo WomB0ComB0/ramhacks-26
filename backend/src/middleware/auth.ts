@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import type { JWTPayload } from "jose";
-import { auth } from "../lib/auth-server";
+import { auth } from "@/lib/auth-server";
 import { fromNodeHeaders } from "better-auth/node";
 
 // We host Better Auth ourselves (Plan C). Session validation is a local call

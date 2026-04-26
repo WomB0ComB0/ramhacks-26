@@ -1,5 +1,5 @@
 import { Pinecone, type Index } from "@pinecone-database/pinecone";
-import { embedTexts, embedOne } from "../ai/embed";
+import { embedTexts, embedOne } from "@/services/ai/embed";
 import { OPPORTUNITIES, type Opportunity } from "@/features/opportunities/catalog";
 
 // Optional vector layer. If PINECONE_API_KEY is unset, isEnabled() returns
