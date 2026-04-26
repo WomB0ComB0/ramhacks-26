@@ -39,6 +39,12 @@ export const auth = betterAuth({
   // jwt: stateless JWT issuance + JWKS endpoint at /api/auth/jwks
   plugins: [bearer(), jwt()],
   advanced: {
+    // The neon_auth tables have `id uuid DEFAULT gen_random_uuid()` — let
+    // Postgres fill the id column instead of Better Auth generating nanoid
+    // strings (which fail UUID type checking).
+    database: {
+      generateId: false,
+    },
     crossSubDomainCookies: { enabled: false },
     defaultCookieAttributes: {
       sameSite: "none",
