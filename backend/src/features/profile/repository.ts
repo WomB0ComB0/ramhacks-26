@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
-import { db } from "../db/client";
-import { userProfiles } from "../db/schema";
-import type { ProfileInput, ProfilePatch } from "../types/api";
+import { db } from "@/db/client";
+import { userProfiles } from "@/db/schema";
+import type { ProfileInput, ProfilePatch } from "./types";
 
 export async function getByUserId(userId: string) {
   const rows = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);

@@ -1,8 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import { requireAuth } from "../middleware/auth";
-import { ProfileInput, ProfilePatch } from "../types/api";
-import * as profiles from "../repositories/profiles";
+import { requireAuth } from "@/middleware/auth";
+import { ProfileInput, ProfilePatch } from "./types";
+import * as profiles from "./repository";
 
 const router = Router();
 

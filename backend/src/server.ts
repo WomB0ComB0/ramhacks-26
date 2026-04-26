@@ -5,12 +5,12 @@ import rateLimit from "express-rate-limit";
 import pino from "pino";
 import pinoHttp from "pino-http";
 import { toNodeHandler } from "better-auth/node";
-import profileRouter from "./routes/profile";
-import careersRouter from "./routes/careers";
-import actionPlansRouter from "./routes/actionPlans";
-import opportunitiesRouter from "./routes/opportunities";
-import meRouter from "./routes/me";
-import networkingRouter from "./routes/networking";
+import profileRouter from "./features/profile/route";
+import careersRouter from "./features/careers/route";
+import actionPlansRouter from "./features/action-plans/route";
+import opportunitiesRouter from "./features/opportunities/route";
+import meRouter from "./features/me/route";
+import networkingRouter from "./features/networking/route";
 import { auth } from "./lib/auth-server";
 
 const logger = pino({

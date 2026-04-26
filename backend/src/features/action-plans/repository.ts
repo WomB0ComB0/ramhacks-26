@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "../db/client";
-import { actionPlans } from "../db/schema";
-import type { ActionPlanResponse } from "../services/ai/schemas";
+import { db } from "@/db/client";
+import { actionPlans } from "@/db/schema";
+import type { ActionPlanResponse } from "@/services/ai/schemas";
 
 export async function getLatest(userId: string) {
   const rows = await db

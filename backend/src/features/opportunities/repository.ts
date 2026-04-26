@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "../db/client";
-import { opportunityRecommendations } from "../db/schema";
-import type { Opportunity } from "../data/opportunities";
+import { db } from "@/db/client";
+import { opportunityRecommendations } from "@/db/schema";
+import type { Opportunity } from "./catalog";
 
 // Snapshot a catalog entry into the per-user opportunity_recommendations table.
 // We store the full record (not just the slug) so the user's saved list is

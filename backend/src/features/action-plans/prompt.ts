@@ -1,4 +1,4 @@
-import type { ProfileForPrompt } from "./career";
+import type { ProfileForPrompt } from "../careers/prompt";
 
 export const ACTION_PLAN_SYSTEM = `You are a career coach for students, career switchers, and underrepresented talent.
 RULES:

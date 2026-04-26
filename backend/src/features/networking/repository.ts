@@ -1,8 +1,8 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "../db/client";
-import { networkingMessages } from "../db/schema";
-import type { NetworkingMessageResponse } from "../services/ai/schemas";
-import type { NetworkingContext } from "../services/ai/prompts/networking";
+import { db } from "@/db/client";
+import { networkingMessages } from "@/db/schema";
+import type { NetworkingMessageResponse } from "@/services/ai/schemas";
+import type { NetworkingContext } from "./prompt";
 
 interface SaveInput {
   userId: string;

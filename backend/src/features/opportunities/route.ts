@@ -1,15 +1,15 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import { requireAuth } from "../middleware/auth";
-import * as profiles from "../repositories/profiles";
-import * as opportunityRepo from "../repositories/opportunities";
-import * as vector from "../services/vector/pinecone";
+import { requireAuth } from "@/middleware/auth";
+import * as profiles from "@/features/profile/repository";
+import * as opportunityRepo from "./repository";
+import * as vector from "@/services/vector/pinecone";
 import {
   OPPORTUNITIES,
   type Opportunity,
   type OpportunityKind,
   type OpportunityAudience,
-} from "../data/opportunities";
+} from "./catalog";
 
 const router = Router();
 

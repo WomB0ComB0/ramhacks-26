@@ -5,8 +5,8 @@
 // is mostly for predictable cold-start reseeds (e.g. after editing the
 // catalog) without needing to hit the API first.
 
-import "../load-env";
-import { isEnabled, seedOpportunities } from "../services/vector/pinecone";
+import "@/load-env";
+import { isEnabled, seedOpportunities } from "@/services/vector/pinecone";
 
 async function main() {
   if (!isEnabled()) {

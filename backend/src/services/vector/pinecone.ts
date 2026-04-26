@@ -1,6 +1,6 @@
 import { Pinecone, type Index } from "@pinecone-database/pinecone";
 import { embedTexts, embedOne } from "../ai/embed";
-import { OPPORTUNITIES, type Opportunity } from "../../data/opportunities";
+import { OPPORTUNITIES, type Opportunity } from "@/features/opportunities/catalog";
 
 // Optional vector layer. If PINECONE_API_KEY is unset, isEnabled() returns
 // false and the route falls back to SQL-style ranking. This keeps the

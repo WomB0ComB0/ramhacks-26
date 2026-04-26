@@ -1,11 +1,11 @@
 import { Router, type Request, type Response } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
-import { requireAuth } from "../middleware/auth";
-import * as profiles from "../repositories/profiles";
-import * as networkingRepo from "../repositories/networkingMessages";
-import { generateNetworkingMessage } from "../services/ai/gemini";
-import type { NetworkingContext } from "../services/ai/prompts/networking";
+import { requireAuth } from "@/middleware/auth";
+import * as profiles from "@/features/profile/repository";
+import * as networkingRepo from "./repository";
+import { generateNetworkingMessage } from "@/services/ai/gemini";
+import type { NetworkingContext } from "./prompt";
 
 const router = Router();
 

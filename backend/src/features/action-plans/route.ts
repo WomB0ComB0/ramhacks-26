@@ -1,19 +1,18 @@
 import { Router, type Request, type Response } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
-import { requireAuth } from "../middleware/auth";
-import * as profiles from "../repositories/profiles";
-import * as careers from "../repositories/careers";
-import { generateCareerMatches } from "../services/ai/gemini";
-import type { ProfileForPrompt } from "../services/ai/prompts/career";
+import { requireAuth } from "@/middleware/auth";
+import * as profiles from "@/features/profile/repository";
+import * as careers from "@/features/careers/repository";
+import * as plans from "./repository";
+import { generateActionPlan } from "@/services/ai/gemini";
+import type { ActionPlanContext } from "./prompt";
+import type { ProfileForPrompt } from "@/features/careers/prompt";
 
 const router = Router();
 
 router.use(requireAuth);
 
-// AI generation — tighter per-user rate limit since each call hits Gemini.
-// requireAuth runs first so req.auth.userId is always present here. We avoid
-// referencing req.ip directly to satisfy express-rate-limit's IPv6 validator.
 const aiLimiter = rateLimit({
   windowMs: 60_000,
   limit: 6,
@@ -24,8 +23,7 @@ const aiLimiter = rateLimit({
 
 const GenerateBody = z
   .object({
-    limit: z.number().int().min(1).max(8).optional(),
-    focus: z.string().min(1).max(120).optional(),
+    anchorCareerId: z.string().uuid().optional(),
   })
   .strict();
 
@@ -49,7 +47,7 @@ router.post("/generate", aiLimiter, async (req: Request, res: Response): Promise
     res.status(409).json({
       error: {
         code: "profile_required",
-        message: "Complete onboarding (POST /api/profile) before generating matches.",
+        message: "Complete onboarding (POST /api/profile) before generating a plan.",
       },
     });
     return;
@@ -68,20 +66,31 @@ router.post("/generate", aiLimiter, async (req: Request, res: Response): Promise
     preferredWorkStyle: profile.preferredWorkStyle ?? [],
   };
 
+  let anchorCareer: ActionPlanContext["anchorCareer"];
+  if (parsed.data.anchorCareerId) {
+    const c = await careers.getOne(userId, parsed.data.anchorCareerId);
+    if (c) {
+      anchorCareer = {
+        title: c.title,
+        fitReason: c.fitReason,
+        missingSkills: c.missingSkills ?? [],
+        requiredSkills: c.requiredSkills ?? [],
+      };
+    }
+  }
+
   try {
-    const ai = await generateCareerMatches(profileForPrompt, parsed.data);
-    const persisted = await careers.saveBatch(userId, ai);
+    const ai = await generateActionPlan({ profile: profileForPrompt, anchorCareer });
+    const persisted = await plans.savePlan(userId, ai, parsed.data.anchorCareerId ?? null);
     res.status(201).json({
       summary: ai.summary,
-      reasoning: ai.reasoning,
       confidence: ai.confidence,
-      nextSteps: ai.nextSteps,
       safetyNotes: ai.safetyNotes,
-      recommendations: persisted,
+      plan: persisted,
     });
   } catch (err) {
-    req.log?.error({ err }, "career generation failed");
-    console.error("[careers] generation error:", err);
+    req.log?.error({ err }, "action plan generation failed");
+    console.error("[action-plans] generation error:", err);
     res.status(503).json({
       error: {
         code: "ai_unavailable",
@@ -95,45 +104,32 @@ router.post("/generate", aiLimiter, async (req: Request, res: Response): Promise
   }
 });
 
+router.get("/latest", async (req: Request, res: Response): Promise<void> => {
+  const userId = req.auth!.userId;
+  const row = await plans.getLatest(userId);
+  // 200 with `plan: null` so the browser DevTools doesn't flag absence as a network error.
+  res.json({ plan: row ?? null });
+});
+
 router.get("/", async (req: Request, res: Response): Promise<void> => {
   const userId = req.auth!.userId;
-  const list = await careers.listForUser(userId);
-  res.json({ recommendations: list });
+  const list = await plans.listForUser(userId);
+  res.json({ plans: list });
 });
 
 router.get("/:id", async (req: Request, res: Response): Promise<void> => {
   const userId = req.auth!.userId;
-  const row = await careers.getOne(userId, req.params.id);
+  const row = await plans.getOne(userId, req.params.id);
   if (!row) {
     res.status(404).json({ error: { code: "not_found", message: "Not found." } });
     return;
   }
-  res.json({ recommendation: row });
-});
-
-router.post("/:id/save", async (req: Request, res: Response): Promise<void> => {
-  const userId = req.auth!.userId;
-  const row = await careers.setSaved(userId, req.params.id, true);
-  if (!row) {
-    res.status(404).json({ error: { code: "not_found", message: "Not found." } });
-    return;
-  }
-  res.json({ recommendation: row });
-});
-
-router.post("/:id/unsave", async (req: Request, res: Response): Promise<void> => {
-  const userId = req.auth!.userId;
-  const row = await careers.setSaved(userId, req.params.id, false);
-  if (!row) {
-    res.status(404).json({ error: { code: "not_found", message: "Not found." } });
-    return;
-  }
-  res.json({ recommendation: row });
+  res.json({ plan: row });
 });
 
 router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
   const userId = req.auth!.userId;
-  await careers.deleteOne(userId, req.params.id);
+  await plans.deleteOne(userId, req.params.id);
   res.status(204).end();
 });
 

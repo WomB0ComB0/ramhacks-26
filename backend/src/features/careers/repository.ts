@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
-import { db } from "../db/client";
-import { careerRecommendations } from "../db/schema";
-import type { CareerMatchResponse } from "../services/ai/schemas";
+import { db } from "@/db/client";
+import { careerRecommendations } from "@/db/schema";
+import type { CareerMatchResponse } from "@/services/ai/schemas";
 
 export async function listForUser(userId: string, limit = 20) {
   return db

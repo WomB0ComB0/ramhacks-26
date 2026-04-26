@@ -1,16 +1,16 @@
 import { GoogleGenAI, Type, type Model } from "@google/genai";
 import { CareerMatchResponse, ActionPlanResponse, NetworkingMessageResponse } from "./schemas";
-import { buildCareerPrompt, CAREER_SYSTEM, type ProfileForPrompt } from "./prompts/career";
+import { buildCareerPrompt, CAREER_SYSTEM, type ProfileForPrompt } from "@/features/careers/prompt";
 import {
   ACTION_PLAN_SYSTEM,
   buildActionPlanPrompt,
   type ActionPlanContext,
-} from "./prompts/actionPlan";
+} from "@/features/action-plans/prompt";
 import {
   NETWORKING_SYSTEM,
   buildNetworkingPrompt,
   type NetworkingContext,
-} from "./prompts/networking";
+} from "@/features/networking/prompt";
 
 // Adapted from Mike Odnis' GeminiService pattern:
 //   - Auto-discovers available models via genAI.models.list() (cached)
