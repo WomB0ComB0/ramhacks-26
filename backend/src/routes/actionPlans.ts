@@ -89,16 +89,16 @@ router.post("/generate", aiLimiter, async (req: Request, res: Response): Promise
       plan: persisted,
     });
   } catch (err) {
+    const e = err as { message?: string; name?: string; status?: number; cause?: unknown };
     req.log?.error({ err }, "action plan generation failed");
     console.error("[action-plans] generation error:", err);
+    console.error("[action-plans] error.name:", e?.name, "status:", e?.status, "cause:", e?.cause);
     res.status(503).json({
       error: {
         code: "ai_unavailable",
         message: "AI is having trouble. Try again in a minute.",
-        details:
-          process.env.NODE_ENV === "production"
-            ? undefined
-            : String((err as Error)?.message ?? err).slice(0, 500),
+        // TEMP: expose details in prod while we diagnose. Revert after fix.
+        details: String(e?.message ?? err).slice(0, 500),
       },
     });
   }
