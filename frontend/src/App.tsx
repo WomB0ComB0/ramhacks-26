@@ -6,6 +6,7 @@ import { api, ApiError } from "./api/client";
 import OnboardingForm from "./components/OnboardingForm";
 import CareerMatches from "./components/CareerMatches";
 import ActionPlanPanel from "./components/ActionPlanPanel";
+import OpportunityList from "./components/OpportunityList";
 
 // M1 smoke-test UI. Real pages (Onboarding, Dashboard, etc.) will replace this.
 
@@ -299,6 +300,7 @@ function SignedIn({ user }: { user: { id: string; email: string; name?: string }
           <>
             <ProfileSummary profile={state.profile} />
             <CareerMatches />
+            <OpportunityList />
             <ActionPlanPanel />
           </>
         )}

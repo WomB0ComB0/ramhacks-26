@@ -8,6 +8,7 @@ import { toNodeHandler } from "better-auth/node";
 import profileRouter from "./routes/profile";
 import careersRouter from "./routes/careers";
 import actionPlansRouter from "./routes/actionPlans";
+import opportunitiesRouter from "./routes/opportunities";
 import { auth } from "./lib/auth-server";
 
 const logger = pino({
@@ -69,6 +70,7 @@ export function buildApp() {
   app.use("/api/profile", profileRouter);
   app.use("/api/careers", careersRouter);
   app.use("/api/action-plans", actionPlansRouter);
+  app.use("/api/opportunities", opportunitiesRouter);
 
   // 404 fallback for unmatched /api/*
   app.use("/api", (_req, res) => {
