@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: ramhacks-26-backend
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: LOG_LEVEL
+        value: info
+      - key: AI_DAILY_BUDGET_USD
+        value: "10"
+      # Secrets — set in the Render dashboard, not committed.
+      - key: DATABASE_URL
+        sync: false
+      - key: VITE_NEON_AUTH_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        sync: false
+      - key: GEMINI_EMBED_MODEL
+        sync: false
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: PINECONE_INDEX
+        sync: false
+      # Updated after first frontend deploy.
+      - key: CORS_ORIGIN
+        value: http://localhost:5173
