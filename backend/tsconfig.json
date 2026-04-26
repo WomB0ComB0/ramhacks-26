@@ -8,22 +8,12 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "drizzle",
-    "src/controllers/auth/**",
-    "src/routes/auth.ts",
-    "src/middlewares/**",
-    "src/models/**",
-    "src/utils/app.ts",
-    "src/utils/crypt.ts",
-    "src/utils/joi.ts",
-    "src/utils/jwt.ts",
-    "src/utils/mongo.ts",
-    "src/@types/**"
-  ]
+  "exclude": ["node_modules", "dist", "drizzle"]
 }
