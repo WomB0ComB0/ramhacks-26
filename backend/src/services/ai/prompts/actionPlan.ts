@@ -40,6 +40,7 @@ ${anchorBlock}${savedBlock}
 INSTRUCTIONS:
 - Build a roadmap in five horizons: 7-day, 30-day, 90-day, 6-month, long-term.
 - Each step has: action / why / estTimeHours / difficulty / expectedOutcome / successCriteria / resources?
+- difficulty MUST be exactly one of: "easy" | "moderate" | "hard" (no other values, no synonyms).
 - 7-day: 3-7 quick wins the user can start this week (1-10h each).
 - 30-day: 4-10 deeper steps that build skill or network (5-40h each, must include >=1 outreach step).
 - 90-day: 3-8 milestone steps (e.g. complete a project, apply to programs).

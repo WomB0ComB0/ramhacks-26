@@ -3,6 +3,30 @@ import { z } from "zod";
 // String maxes are defense-in-depth — relaxed so legitimate model verbosity
 // doesn't fail validation. Tighten again post-hackathon if needed.
 
+// Models occasionally return "medium"/"high"/"low" instead of the schema enum.
+// Normalize before .enum() validation so a single synonym doesn't nuke an
+// otherwise-good plan. Falls through unchanged if not a known synonym (the
+// .enum() then rejects it loudly, which is what we want for true garbage).
+const normalizeDifficulty = (raw: unknown) => {
+  if (typeof raw !== "string") return raw;
+  const v = raw.trim().toLowerCase();
+  const map: Record<string, string> = {
+    easy: "easy",
+    low: "easy",
+    beginner: "easy",
+    medium: "moderate",
+    moderate: "moderate",
+    intermediate: "moderate",
+    hard: "hard",
+    high: "hard",
+    advanced: "hard",
+    "very hard": "very_hard",
+    very_hard: "very_hard",
+    expert: "very_hard",
+  };
+  return map[v] ?? raw;
+};
+
 export const CareerMatch = z.object({
   title: z.string().min(2).max(200),
   fitReason: z.string().min(10).max(2000),
@@ -19,7 +43,7 @@ export const CareerMatch = z.object({
     .max(8),
   entryRoles: z.array(z.string()).max(12),
   growthPath: z.array(z.string()).max(10),
-  difficulty: z.enum(["easy", "moderate", "hard", "very_hard"]),
+  difficulty: z.preprocess(normalizeDifficulty, z.enum(["easy", "moderate", "hard", "very_hard"])),
   confidence: z.number().min(0).max(1),
   tradeoffs: z.string().max(2000),
 });
@@ -41,7 +65,7 @@ export const ActionStep = z.object({
   action: z.string().max(400),
   why: z.string().max(800),
   estTimeHours: z.number().min(0.25).max(500),
-  difficulty: z.enum(["easy", "moderate", "hard"]),
+  difficulty: z.preprocess(normalizeDifficulty, z.enum(["easy", "moderate", "hard"])),
   expectedOutcome: z.string().max(800),
   successCriteria: z.string().max(600),
   resources: z

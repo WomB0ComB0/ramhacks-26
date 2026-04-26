@@ -124,7 +124,10 @@ const careerResponseSchema = {
           },
           entryRoles: { type: Type.ARRAY, items: { type: Type.STRING } },
           growthPath: { type: Type.ARRAY, items: { type: Type.STRING } },
-          difficulty: { type: Type.STRING },
+          difficulty: {
+            type: Type.STRING,
+            enum: ["easy", "moderate", "hard", "very_hard"],
+          },
           confidence: { type: Type.NUMBER },
           tradeoffs: { type: Type.STRING },
         },
@@ -228,7 +231,10 @@ const actionStepSchema = {
     action: { type: Type.STRING },
     why: { type: Type.STRING },
     estTimeHours: { type: Type.NUMBER },
-    difficulty: { type: Type.STRING },
+    difficulty: {
+      type: Type.STRING,
+      enum: ["easy", "moderate", "hard"],
+    },
     expectedOutcome: { type: Type.STRING },
     successCriteria: { type: Type.STRING },
     resources: {
