@@ -169,11 +169,19 @@ export async function generateCareerMatches(
         config: {
           systemInstruction: CAREER_SYSTEM,
           temperature: 0.4,
-          maxOutputTokens: 4096,
+          // Career schema is recommendations[] with nested arrays — 4K easily
+          // truncates mid-JSON (parse error at pos ~10K). 2.5-flash supports
+          // up to 65K output tokens; 16K gives headroom without burning budget.
+          maxOutputTokens: 16384,
           responseMimeType: "application/json",
           responseSchema: careerResponseSchema,
         },
       });
+
+      const finishReason = result.candidates?.[0]?.finishReason;
+      if (finishReason && finishReason !== "STOP") {
+        console.warn(`[gemini] ${modelName} finishReason=${finishReason} (likely truncated)`);
+      }
 
       const text = result.text;
       if (!text) {
@@ -285,11 +293,18 @@ export async function generateActionPlan(
         config: {
           systemInstruction: ACTION_PLAN_SYSTEM,
           temperature: 0.3,
-          maxOutputTokens: 6144,
+          // Action plan schema is 5 horizons × N steps × resources — even
+          // larger than career. 16K is safe; 2.5-flash supports up to 65K.
+          maxOutputTokens: 16384,
           responseMimeType: "application/json",
           responseSchema: actionPlanResponseSchema,
         },
       });
+
+      const finishReason = result.candidates?.[0]?.finishReason;
+      if (finishReason && finishReason !== "STOP") {
+        console.warn(`[gemini-plan] ${modelName} finishReason=${finishReason} (likely truncated)`);
+      }
 
       const text = result.text;
       if (!text) throw new Error("Gemini returned empty content");
