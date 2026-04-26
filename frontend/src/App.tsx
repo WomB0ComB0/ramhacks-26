@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthView, AccountView } from "@neondatabase/neon-js/auth/react/ui";
 import { useSession, signOut } from "./lib/auth";
 import { api, ApiError } from "./api/client";
@@ -15,6 +16,13 @@ const MODES: ReadonlyArray<{ key: AuthMode; label: string }> = [
   { key: "sign-in", label: "Sign in" },
   { key: "forgot-password", label: "Reset" },
 ];
+
+const KNOWN_MODES = new Set<AuthMode>(MODES.map((m) => m.key));
+
+function modeFromPath(pathname: string): AuthMode {
+  const seg = pathname.replace(/^\/auth\//, "").split("/")[0];
+  return KNOWN_MODES.has(seg as AuthMode) ? (seg as AuthMode) : "sign-up";
+}
 
 function Brand() {
   return (
@@ -37,7 +45,17 @@ function Brand() {
 }
 
 function SignedOut() {
-  const [mode, setMode] = useState<AuthMode>("sign-up");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const mode = modeFromPath(location.pathname);
+
+  // Keep URL under /auth/{mode} so AuthView's internal nav and our tabs
+  // both read from the same source of truth.
+  useEffect(() => {
+    if (!location.pathname.startsWith("/auth/")) {
+      navigate(`/auth/${mode}`, { replace: true });
+    }
+  }, [location.pathname, mode, navigate]);
 
   return (
     <div style={{ minHeight: "100svh", display: "flex", flexDirection: "column" }}>
@@ -68,7 +86,7 @@ function SignedOut() {
                   key={m.key}
                   role="tab"
                   aria-selected={mode === m.key}
-                  onClick={() => setMode(m.key)}
+                  onClick={() => navigate(`/auth/${m.key}`)}
                 >
                   {m.label}
                 </button>
