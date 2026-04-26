@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { api, ApiError } from "../api/client";
+import ErrorBanner from "./ErrorBanner";
 
 type EducationLevel =
   | "high_school"
@@ -251,7 +252,7 @@ export default function OnboardingForm({ onSaved }: { onSaved: () => void }) {
         </div>
       </div>
 
-      {error && <pre className="pre-err">{error}</pre>}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       <button
         type="submit"

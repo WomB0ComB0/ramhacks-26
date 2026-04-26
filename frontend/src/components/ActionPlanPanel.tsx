@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../api/client";
+import ErrorBanner from "./ErrorBanner";
 
 interface Resource {
   label: string;
@@ -230,7 +231,7 @@ export default function ActionPlanPanel() {
         </button>
       </header>
 
-      {error && <pre className="pre-err">{error}</pre>}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {loading ? (
         <p style={{ color: "var(--text-muted)" }}>Loading…</p>

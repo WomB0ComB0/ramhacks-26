@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../api/client";
+import ErrorBanner from "./ErrorBanner";
+import { SkeletonGrid } from "./Skeleton";
 
 type OpportunityKind =
   | "fellowship"
@@ -423,10 +425,10 @@ export default function OpportunityList() {
         </label>
       </div>
 
-      {error && <pre className="pre-err">{error}</pre>}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {loading ? (
-        <p style={{ color: "var(--text-muted)" }}>Loading opportunities…</p>
+        <SkeletonGrid count={3} />
       ) : visible.length === 0 ? (
         <div className="card-muted" style={{ textAlign: "center", padding: 32 }}>
           <p style={{ color: "var(--text-muted)", margin: 0 }}>

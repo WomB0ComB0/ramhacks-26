@@ -7,6 +7,7 @@ import OnboardingForm from "./components/OnboardingForm";
 import CareerMatches from "./components/CareerMatches";
 import ActionPlanPanel from "./components/ActionPlanPanel";
 import OpportunityList from "./components/OpportunityList";
+import ErrorBanner from "./components/ErrorBanner";
 
 // M1 smoke-test UI. Real pages (Onboarding, Dashboard, etc.) will replace this.
 
@@ -154,7 +155,7 @@ function SmokeTest() {
           {loading ? "Calling…" : "Run smoke test"}
         </button>
       </div>
-      {error && <pre className="pre-err">{error}</pre>}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
       {result !== null && <pre className="pre-ok">{JSON.stringify(result, null, 2)}</pre>}
     </section>
   );
@@ -283,7 +284,7 @@ function DangerZone() {
           sign-in account stays so you can re-onboard, or use the Account section above to
           remove the account itself.
         </p>
-        {err && <pre className="pre-err" style={{ marginTop: 12 }}>{err}</pre>}
+        {err && <ErrorBanner message={err} onDismiss={() => setErr(null)} />}
         <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
           {!confirming ? (
             <button
@@ -351,7 +352,7 @@ function SignedIn({ user }: { user: { id: string; email: string; name?: string }
           <p style={{ color: "var(--text-muted)", marginTop: 24 }}>Loading profile…</p>
         )}
 
-        {state.kind === "error" && <pre className="pre-err">{state.message}</pre>}
+        {state.kind === "error" && <ErrorBanner message={state.message} />}
 
         {state.kind === "absent" && <OnboardingForm onSaved={refetch} />}
 
@@ -364,7 +365,7 @@ function SignedIn({ user }: { user: { id: string; email: string; name?: string }
           </>
         )}
 
-        <SmokeTest />
+        {new URLSearchParams(window.location.search).get("debug") === "1" && <SmokeTest />}
 
         <section style={{ marginTop: 32 }}>
           <h2>Account</h2>

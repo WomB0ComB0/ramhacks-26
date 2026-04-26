@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, ApiError } from "../api/client";
+import ErrorBanner from "./ErrorBanner";
+import { SkeletonGrid } from "./Skeleton";
 
 interface SuggestedProject {
   name: string;
@@ -304,7 +306,7 @@ export default function CareerMatches() {
         </div>
       </header>
 
-      {error && <pre className="pre-err">{error}</pre>}
+      {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
 
       {meta && (
         <div className="card-muted" style={{ marginBottom: 16 }}>
@@ -344,7 +346,7 @@ export default function CareerMatches() {
       )}
 
       {loading ? (
-        <p style={{ color: "var(--text-muted)" }}>Loading…</p>
+        <SkeletonGrid count={3} />
       ) : (() => {
           const visible = savedOnly ? list.filter((r) => r.saved) : list;
           if (visible.length === 0) {

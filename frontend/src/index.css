@@ -186,6 +186,22 @@ pre {
   color: var(--text-muted);
 }
 
+/* Skeleton placeholders (shown while content loads) */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, #1a1c22 0%, #25272f 50%, #1a1c22 100%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
 /* Result panes */
 .pre-ok {
   background: #0f1015;
