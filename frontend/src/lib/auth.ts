@@ -14,9 +14,56 @@ if (!apiBase) {
 }
 const url = `${apiBase.replace(/\/$/, "")}/api/auth`;
 
+// Browsers with third-party cookie restrictions (Chrome incremental rollout,
+// Safari ITP, Brave, Firefox strict) drop the cross-site
+// `__Secure-better-auth.session_token` cookie even with `SameSite=None;
+// Secure`. Without the cookie, /get-session returns null after a successful
+// sign-in and the UI stays stuck on the auth screen. Mirror Better Auth's
+// bearer flow into localStorage so session persistence survives cookie loss.
+const BEARER_TOKEN_KEY = "ramhacks-26.bearer-token";
+
+function readBearer(): string {
+  try {
+    return globalThis.localStorage?.getItem(BEARER_TOKEN_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function writeBearer(token: string): void {
+  try {
+    globalThis.localStorage?.setItem(BEARER_TOKEN_KEY, token);
+  } catch {}
+}
+
+function clearBearer(): void {
+  try {
+    globalThis.localStorage?.removeItem(BEARER_TOKEN_KEY);
+  } catch {}
+}
+
 export const client = createClient({
   auth: {
-    adapter: BetterAuthReactAdapter(),
+    adapter: BetterAuthReactAdapter({
+      fetchOptions: {
+        // Attach Authorization: Bearer <session-token> to every Better Auth
+        // request so /get-session works even when the cross-origin cookie is
+        // dropped. The server-side bearer() plugin in
+        // backend/src/lib/auth-server.ts accepts this header and resolves the
+        // matching session row.
+        auth: {
+          type: "Bearer",
+          token: readBearer,
+        },
+        // Capture the bearer token Better Auth issues on sign-in / sign-up.
+        // The server's CORS config exposes `Set-Auth-Token`
+        // (backend/src/server.ts:47) so the header reaches us in the browser.
+        onSuccess: (ctx) => {
+          const issued = ctx.response.headers.get("set-auth-token");
+          if (issued) writeBearer(issued);
+        },
+      },
+    }),
     url,
   },
   // dataApi is required by createClient's type but unused here — we hit our
@@ -30,15 +77,22 @@ export const authClient = client.auth;
 export const useSession = client.auth.useSession;
 export const signIn = client.auth.signIn;
 export const signUp = client.auth.signUp;
-export const signOut = () => client.auth.signOut();
+export const signOut = async () => {
+  const result = await client.auth.signOut();
+  // Drop the bearer AFTER the request completes — clearing it first would
+  // make the sign-out call itself unauthenticated.
+  clearBearer();
+  return result;
+};
 
 /**
- * Returns the current session JWT for forwarding to our Express API as
- * `Authorization: Bearer <token>`. Returns null if the user is not signed in.
- *
- * Use from the fetch wrapper in `frontend/src/api/client.ts` (to be created).
+ * Returns the current bearer session token for forwarding to our Express API
+ * as `Authorization: Bearer <token>`. Returns null if the user is not signed
+ * in. Reads from localStorage (not session.data.session.token) because the
+ * Neon adapter overwrites session.token with the JWT plugin's value, which
+ * the backend's bearer plugin would not recognize.
  */
 export async function getAuthToken(): Promise<string | null> {
-  const session = await client.auth.getSession?.();
-  return session?.data?.session?.token ?? null;
+  const stored = readBearer();
+  return stored ? stored : null;
 }
